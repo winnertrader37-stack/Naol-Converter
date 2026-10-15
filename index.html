@@ -4,495 +4,940 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <meta name="theme-color" content="#090d1c">
-  <meta name="description" content="Naol Converter - Convert image text to editable text and transform typed text into handwriting-style documents.">
+  <meta
+    name="description"
+    content="Naol Converter — Convert images to text and text to beautiful handwriting."
+  >
 
-  <title>Naol Converter | Smart Text Studio</title>
+  <meta name="theme-color" content="#0b1020">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@400;500;600;700&family=Patrick+Hand&family=Kalam:wght@300;400;700&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+  <title>Naol Converter | Image to Text & Handwriting</title>
 
   <link rel="stylesheet" href="style.css">
 
-  <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script defer src="script.js"></script>
+  <!-- OCR engine -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- Export image -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <!-- Export PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #080d1b;
+      --card: #111a30;
+      --card2: #17223c;
+      --text: #f5f7ff;
+      --muted: #aab5d0;
+      --purple: #8b5cf6;
+      --cyan: #22d3ee;
+      --border: rgba(255,255,255,.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at 10% 0%, #252052 0, transparent 35%),
+        radial-gradient(circle at 90% 20%, #103a50 0, transparent 30%),
+        var(--bg);
+      color: var(--text);
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    .upload-button {
+      cursor: pointer;
+      transition: .2s ease;
+    }
+
+    button:hover,
+    .upload-button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.12);
+    }
+
+    button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      padding: 15px 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      background: rgba(8,13,27,.92);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: .3px;
+    }
+
+    .brand-icon {
+      width: 43px;
+      height: 43px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      color: white;
+      box-shadow: 0 8px 28px rgba(34,211,238,.18);
+    }
+
+    .brand span:last-child {
+      background: linear-gradient(90deg, #fff, #8be9ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .status-pill {
+      border: 1px solid rgba(34,211,238,.3);
+      color: #8be9ff;
+      background: rgba(34,211,238,.08);
+      padding: 8px 12px;
+      border-radius: 50px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .hero {
+      max-width: 1050px;
+      margin: auto;
+      padding: 48px 20px 28px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 8px 13px;
+      border: 1px solid rgba(139,92,246,.4);
+      background: rgba(139,92,246,.12);
+      border-radius: 50px;
+      color: #cbb8ff;
+      font-size: 12px;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      margin: 0 0 15px;
+      font-size: clamp(30px, 5vw, 54px);
+      line-height: 1.12;
+      letter-spacing: -1.4px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #a78bfa, #22d3ee);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      max-width: 650px;
+      margin: auto;
+      color: var(--muted);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .main-container {
+      max-width: 1050px;
+      margin: auto;
+      padding: 10px 18px 55px;
+    }
+
+    .tool-nav {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .nav-item {
+      padding: 16px 12px;
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      background: rgba(255,255,255,.035);
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .nav-item.active {
+      background: linear-gradient(
+        135deg,
+        rgba(139,92,246,.23),
+        rgba(34,211,238,.12)
+      );
+      border-color: rgba(139,92,246,.65);
+      color: white;
+      box-shadow: 0 8px 30px rgba(0,0,0,.15);
+    }
+
+    .tool-view {
+      display: none;
+    }
+
+    .tool-view.active {
+      display: block;
+      animation: appear .25s ease;
+    }
+
+    @keyframes appear {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .converter-card {
+      background: linear-gradient(
+        145deg,
+        rgba(23,34,60,.96),
+        rgba(13,21,39,.98)
+      );
+      border: 1px solid var(--border);
+      border-radius: 23px;
+      padding: clamp(18px, 4vw, 32px);
+      box-shadow: 0 20px 70px rgba(0,0,0,.2);
+    }
+
+    .section-heading {
+      margin-bottom: 25px;
+    }
+
+    .section-heading h2 {
+      margin: 0 0 9px;
+      font-size: 25px;
+    }
+
+    .section-heading p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 9px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .form-group small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+      margin-top: 8px;
+    }
+
+    select,
+    input[type="text"],
+    input[type="number"],
+    textarea {
+      width: 100%;
+      color: var(--text);
+      background: #0a1225;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 13px 14px;
+      outline: none;
+    }
+
+    select:focus,
+    input:focus,
+    textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(34,211,238,.08);
+    }
+
+    select option {
+      background: #101a30;
+      color: white;
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+
+    .upload-area {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    .upload-button,
+    button {
+      min-height: 44px;
+      padding: 12px 15px;
+      border-radius: 11px;
+      border: 1px solid var(--border);
+      background: #202d49;
+      color: white;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .upload-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .primary-button {
+      width: 100%;
+      border: none;
+      background: linear-gradient(100deg, #7952e8, #277fe6);
+      box-shadow: 0 8px 24px rgba(99,102,241,.2);
+    }
+
+    .secondary-button {
+      background: rgba(34,211,238,.08);
+      border-color: rgba(34,211,238,.25);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin: 15px 0;
+    }
+
+    .button-row button {
+      flex: 1 1 130px;
+    }
+
+    #sourceStatus,
+    #ocrHelp,
+    #exportStatus {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    #imagePreview {
+      min-height: 180px;
+      margin: 16px 0;
+      padding: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      border: 1px dashed rgba(139,92,246,.5);
+      border-radius: 15px;
+      background: rgba(4,10,23,.55);
+      overflow: hidden;
+    }
+
+    #emptyPreview {
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    #sourceImage {
+      display: block;
+      max-width: 100%;
+      max-height: 440px;
+      object-fit: contain;
+      border-radius: 8px;
+      transform-origin: center;
+    }
+
+    #sourceImage[hidden] {
+      display: none;
+    }
+
+    #ocrProgressWrap {
+      margin: 20px 0;
+      padding: 15px;
+      background: rgba(255,255,255,.035);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    #ocrStatusText {
+      font-size: 13px;
+      margin: 0 0 10px;
+    }
+
+    .progress-track {
+      height: 9px;
+      background: #26334f;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, var(--purple), var(--cyan));
+      transition: width .2s ease;
+    }
+
+    #ocrPercent {
+      display: block;
+      margin-top: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      text-align: right;
+    }
+
+    .paper-controls {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .paper-preview {
+      min-height: 400px;
+      margin-top: 20px;
+      padding: 38px 30px;
+      position: relative;
+      overflow-wrap: anywhere;
+      color: #1c2434;
+      background: white;
+      border-radius: 4px;
+      box-shadow: 0 12px 35px rgba(0,0,0,.22);
+    }
+
+    .paper-preview.ruled {
+      background-color: #fff;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 30px,
+        #c6d7f4 31px,
+        transparent 32px
+      );
+    }
+
+    .paper-preview.grid {
+      background-color: #fff;
+      background-image:
+        linear-gradient(#d8e2f2 1px, transparent 1px),
+        linear-gradient(90deg, #d8e2f2 1px, transparent 1px);
+      background-size: 25px 25px;
+    }
+
+    .paper-preview h3 {
+      margin: 0 0 15px;
+      font-size: 12px;
+      font-family: Arial, sans-serif;
+      color: #63708a;
+      text-align: right;
+    }
+
+    #handwritingOutput {
+      min-height: 300px;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      line-height: 1.8;
+      font-family: "Comic Sans MS", "Segoe Print", cursive;
+      font-size: 22px;
+    }
+
+    #watermark {
+      position: absolute;
+      right: 12px;
+      bottom: 8px;
+      color: rgba(80,90,110,.45);
+      font-size: 10px;
+      font-family: Arial, sans-serif;
+    }
+
+    #paperDate {
+      position: absolute;
+      left: 12px;
+      bottom: 8px;
+      color: #63708a;
+      font-size: 10px;
+    }
+
+    .checkbox-line {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 12px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .checkbox-line input {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--purple);
+    }
+
+    footer {
+      padding: 25px 15px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 600px) {
+      .topbar {
+        padding: 12px 15px;
+      }
+
+      .brand {
+        font-size: 17px;
+      }
+
+      .brand-icon {
+        width: 38px;
+        height: 38px;
+      }
+
+      .status-pill {
+        font-size: 10px;
+        padding: 7px 9px;
+      }
+
+      .hero {
+        padding-top: 35px;
+      }
+
+      .paper-controls {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .upload-area {
+        grid-template-columns: 1fr;
+      }
+
+      .paper-preview {
+        padding: 25px 18px;
+      }
+
+      .converter-card {
+        border-radius: 17px;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <div class="background-glow glow-one"></div>
-  <div class="background-glow glow-two"></div>
 
   <header class="topbar">
-    <a class="brand" href="#" aria-label="Naol Converter Home">
+    <div class="brand">
       <div class="brand-icon">N</div>
-      <div class="brand-copy">
-        <strong>NAOL<span> CONVERTER</span></strong>
-        <small>SMART TEXT STUDIO</small>
-      </div>
-    </a>
-
-    <div class="topbar-right">
-      <span class="status-indicator">
-        <span class="status-dot"></span>
-        <span>Studio Ready</span>
-      </span>
-      <button class="topbar-button" id="themeToggle" type="button" title="Toggle appearance">
-        ◐
-      </button>
+      <span>Naol Converter</span>
     </div>
+
+    <div class="status-pill">✦ Smart Text Tools</div>
   </header>
 
-  <main class="app-container">
-    <section class="hero">
-      <div class="hero-badge">
-        <span>✦</span>
-        ALL-IN-ONE TEXT TOOLKIT
-      </div>
+  <section class="hero">
+    <div class="hero-badge">YOUR DIGITAL CONVERSION TOOL</div>
 
-      <h1>Make your text<br><span class="gradient-text">work smarter.</span></h1>
+    <h1>
+      Convert Images into <span class="gradient-text">Text</span>
+    </h1>
 
-      <p class="hero-description">
-        Extract text from photos and documents, or turn your typed words
-        into beautiful handwriting-style pages.
-      </p>
+    <p>
+      Extract text from pictures, edit your words, and turn typed text
+      into a handwriting-style page — all in one simple workspace.
+    </p>
+  </section>
 
-      <div class="hero-features">
-        <span>⚡ Fast workflow</span>
-        <span>✍️ Handwriting studio</span>
-        <span>🔒 Local processing where supported</span>
-      </div>
-    </section>
+  <main class="main-container">
 
-    <section class="workspace">
-      <aside class="sidebar">
-        <div class="sidebar-heading">WORKSPACE</div>
+    <nav class="tool-nav" aria-label="Choose a tool">
+      <button
+        type="button"
+        class="nav-item active"
+        data-view="imageTextView"
+      >
+        📷 Image to Text
+      </button>
 
-        <button class="nav-item active" data-view="extractView" type="button">
-          <span class="nav-icon">▤</span>
-          <span>
-            <strong>Image to Text</strong>
-            <small>Extract editable text</small>
-          </span>
-          <span class="nav-arrow">›</span>
-        </button>
+      <button
+        type="button"
+        class="nav-item"
+        data-view="handwritingView"
+      >
+        ✍️ Text to Handwriting
+      </button>
+    </nav>
 
-        <button class="nav-item" data-view="handwritingView" type="button">
-          <span class="nav-icon">✍</span>
-          <span>
-            <strong>Text to Handwriting</strong>
-            <small>Create handwritten pages</small>
-          </span>
-          <span class="nav-arrow">›</span>
-        </button>
+    <!-- IMAGE TO TEXT -->
 
-        <div class="sidebar-divider"></div>
+    <section class="tool-view active" id="imageTextView">
 
-        <div class="sidebar-heading">QUICK TOOLS</div>
+      <div class="converter-card">
 
-        <button class="quick-tool" id="quickClear" type="button">
-          <span>⌫</span> Clear workspace
-        </button>
-
-        <button class="quick-tool" id="quickCopy" type="button">
-          <span>▣</span> Copy result
-        </button>
-
-        <button class="quick-tool" id="quickDownload" type="button">
-          <span>⇩</span> Download result
-        </button>
-
-        <div class="sidebar-note">
-          <div class="note-icon">✦</div>
-          <strong>Your creative workspace</strong>
-          <p>Convert, edit, customize and export your text in one place.</p>
+        <div class="section-heading">
+          <h2>📷 Image to Text</h2>
+          <p>
+            Choose a picture or take a photo, select the language,
+            and extract text.
+          </p>
         </div>
-      </aside>
 
-      <section class="main-panel">
+        <div class="form-group">
+          <label for="ocrLanguage">Text language / Afaan barruu</label>
 
-        <!-- IMAGE TO TEXT VIEW -->
-        <section class="tool-view active" id="extractView">
-          <div class="panel-heading">
-            <div>
-              <div class="eyebrow">TEXT EXTRACTION</div>
-              <h2>Image to Text</h2>
-              <p>Extract text from images or PDF documents.</p>
-            </div>
-            <div class="heading-icon purple-icon">▤</div>
+          <select id="ocrLanguage">
+            <option value="eng">English</option>
+            <option value="amh">Amharic — አማርኛ</option>
+            <option value="orm">Afaan Oromoo — experimental</option>
+            <option value="eng+amh">English + Amharic</option>
+          </select>
+
+          <small>
+            Important: Afaan Oromoo is listed as an experimental option.
+            The OCR engine needs a compatible Oromoo language model.
+            If that model is unavailable, this option will show an error
+            instead of pretending to recognize Oromoo accurately.
+          </small>
+        </div>
+
+        <div class="upload-area">
+          <label for="imageInput" class="upload-button">
+            📁 Choose Image
+          </label>
+
+          <input
+            type="file"
+            id="imageInput"
+            accept="image/*"
+            hidden
+          >
+
+          <label for="cameraInput" class="upload-button secondary-button">
+            📸 Take Photo
+          </label>
+
+          <input
+            type="file"
+            id="cameraInput"
+            accept="image/*"
+            capture="environment"
+            hidden
+          >
+        </div>
+
+        <div id="sourceStatus" role="status" aria-live="polite">
+          No image selected.
+        </div>
+
+        <div id="imagePreview">
+          <div id="emptyPreview">
+            Your selected image will appear here.
           </div>
 
-          <div class="step-row">
-            <div class="step active-step">
-              <span>01</span>
-              <div>
-                <strong>Upload</strong>
-                <small>Select a file</small>
-              </div>
-            </div>
-            <div class="step-line"></div>
-            <div class="step">
-              <span>02</span>
-              <div>
-                <strong>Extract</strong>
-                <small>Recognize text</small>
-              </div>
-            </div>
-            <div class="step-line"></div>
-            <div class="step">
-              <span>03</span>
-              <div>
-                <strong>Export</strong>
-                <small>Save your result</small>
-              </div>
-            </div>
+          <img
+            id="sourceImage"
+            alt="Selected image preview"
+            hidden
+          >
+        </div>
+
+        <div class="button-row">
+          <button id="rotateLeft" type="button">↶ Rotate Left</button>
+          <button id="rotateRight" type="button">↷ Rotate Right</button>
+          <button id="removeImage" type="button">✕ Remove Image</button>
+        </div>
+
+        <div class="form-group">
+          <label for="imageScale">Image processing quality</label>
+
+          <select id="imageScale">
+            <option value="1">Normal</option>
+            <option value="1.5" selected>High</option>
+            <option value="2">Very High</option>
+          </select>
+
+          <small>
+            Higher quality can help with small printed text, but processing
+            may take longer on a phone.
+          </small>
+        </div>
+
+        <button
+          id="extractButton"
+          type="button"
+          class="primary-button"
+        >
+          🔍 Extract Text
+        </button>
+
+        <div id="ocrProgressWrap" hidden>
+          <p id="ocrStatusText" role="status" aria-live="polite">
+            Ready
+          </p>
+
+          <div class="progress-track">
+            <div id="ocrProgressBar" class="progress-bar"></div>
           </div>
 
-          <div class="upload-grid">
-            <label class="upload-card" for="imageInput">
-              <span class="upload-card-icon">▧</span>
-              <strong>Upload Image</strong>
-              <small>JPG, PNG, WEBP, BMP</small>
-              <span class="upload-card-action">Choose Image ↗</span>
-            </label>
+          <span id="ocrPercent">0%</span>
+        </div>
 
-            <label class="upload-card" for="cameraInput">
-              <span class="upload-card-icon">◎</span>
-              <strong>Take a Photo</strong>
-              <small>Use your phone camera</small>
-              <span class="upload-card-action">Open Camera ↗</span>
-            </label>
+        <div class="form-group" style="margin-top:25px;">
+          <label for="extractedText">Extracted Text / Barruu ba'e</label>
 
-            <label class="upload-card" for="pdfInput">
-              <span class="upload-card-icon">▤</span>
-              <strong>Upload PDF</strong>
-              <small>Text PDFs and scanned PDFs</small>
-              <span class="upload-card-action">Choose PDF ↗</span>
-            </label>
-          </div>
+          <textarea
+            id="extractedText"
+            rows="10"
+            placeholder="Extracted text will appear here. You can edit it."
+          ></textarea>
+        </div>
 
-          <input type="file" id="imageInput" accept="image/*" hidden>
-          <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
-          <input type="file" id="pdfInput" accept="application/pdf,.pdf" hidden>
+        <div class="button-row">
+          <button id="copyExtracted" type="button">📋 Copy Text</button>
+          <button id="downloadTxt" type="button">⬇ Download TXT</button>
+          <button id="clearExtracted" type="button">🗑 Clear Text</button>
+        </div>
 
-          <div class="editor-grid">
-            <div class="editor-card">
-              <div class="card-title-row">
-                <div>
-                  <h3>Source Preview</h3>
-                  <p>Preview and adjust your image.</p>
-                </div>
-                <span class="mini-tag" id="sourceStatus">No file</span>
-              </div>
+        <div class="button-row">
+          <button id="sendToHandwriting" type="button">
+            ✍️ Send to Handwriting
+          </button>
+        </div>
 
-              <div class="image-preview" id="imagePreview">
-                <div class="empty-preview" id="emptyPreview">
-                  <div class="empty-preview-icon">▧</div>
-                  <strong>Your file will appear here</strong>
-                  <span>Upload a photo or choose a PDF.</span>
-                </div>
-                <img id="sourceImage" alt="Uploaded image preview" hidden>
-              </div>
+        <p id="ocrHelp" role="status" aria-live="polite">
+          Tip: Use a clear, well-lit image with readable text.
+        </p>
 
-              <div class="image-tools">
-                <button class="small-button" id="rotateLeft" type="button">↶ Rotate</button>
-                <button class="small-button" id="rotateRight" type="button">↷ Rotate</button>
-                <button class="small-button danger-button" id="removeImage" type="button">Remove</button>
-              </div>
+      </div>
 
-              <div class="field-group">
-                <label for="ocrLanguage">Recognition Language</label>
-                <select id="ocrLanguage">
-                  <option value="eng">English</option>
-                  <option value="amh">Amharic (አማርኛ)</option>
-                </select>
-                <small class="field-help">
-                  Recognition quality depends on image clarity and the selected language model.
-                </small>
-              </div>
-
-              <div class="field-group">
-                <label for="imageScale">Image Processing</label>
-                <select id="imageScale">
-                  <option value="1">Original size</option>
-                  <option value="1.5" selected>Enhanced resolution</option>
-                  <option value="2">High resolution</option>
-                </select>
-              </div>
-
-              <button class="primary-button full-button" id="extractButton" type="button">
-                <span>✦</span> Extract Text
-              </button>
-
-              <div class="progress-wrap" id="ocrProgressWrap" hidden>
-                <div class="progress-heading">
-                  <span id="ocrStatusText">Preparing...</span>
-                  <strong id="ocrPercent">0%</strong>
-                </div>
-                <div class="progress-track">
-                  <div class="progress-fill" id="ocrProgressBar"></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="editor-card">
-              <div class="card-title-row">
-                <div>
-                  <h3>Extracted Text</h3>
-                  <p>Edit the recognized text before saving.</p>
-                </div>
-                <span class="mini-tag" id="wordCount">0 words</span>
-              </div>
-
-              <textarea
-                id="extractedText"
-                class="text-editor"
-                placeholder="Your extracted text will appear here. You can also type or paste text into this area..."
-                spellcheck="true"
-              ></textarea>
-
-              <div class="text-stats">
-                <span id="characterCount">0 characters</span>
-                <span id="lineCount">0 lines</span>
-              </div>
-
-              <div class="button-grid">
-                <button class="secondary-button" id="copyExtracted" type="button">▣ Copy Text</button>
-                <button class="secondary-button" id="downloadTxt" type="button">⇩ Download TXT</button>
-                <button class="secondary-button" id="clearExtracted" type="button">⌫ Clear Text</button>
-                <button class="secondary-button" id="sendToHandwriting" type="button">✍ Handwriting Studio</button>
-              </div>
-
-              <div class="info-box">
-                <span>ⓘ</span>
-                <p>OCR can make mistakes, especially with handwriting, blurry images, and unusual fonts. Review the result before using it.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- TEXT TO HANDWRITING VIEW -->
-        <section class="tool-view" id="handwritingView">
-          <div class="panel-heading">
-            <div>
-              <div class="eyebrow">HANDWRITING STUDIO</div>
-              <h2>Text to Handwriting</h2>
-              <p>Design a handwritten-style page with your own settings.</p>
-            </div>
-            <div class="heading-icon cyan-icon">✍</div>
-          </div>
-
-          <div class="handwriting-layout">
-            <div class="settings-column">
-              <div class="settings-card">
-                <div class="settings-title">
-                  <span class="settings-number">01</span>
-                  <div>
-                    <h3>Your Text</h3>
-                    <p>Type or paste your content.</p>
-                  </div>
-                </div>
-
-                <textarea id="handwritingText" class="input-textarea" placeholder="Write something beautiful here..."></textarea>
-
-                <div class="field-inline">
-                  <button class="small-button" id="pasteText" type="button">Paste Text</button>
-                  <button class="small-button" id="clearHandwriting" type="button">Clear</button>
-                  <span class="inline-counter" id="handwritingWordCount">0 words</span>
-                </div>
-              </div>
-
-              <div class="settings-card">
-                <div class="settings-title">
-                  <span class="settings-number">02</span>
-                  <div>
-                    <h3>Handwriting Style</h3>
-                    <p>Choose the appearance of your text.</p>
-                  </div>
-                </div>
-
-                <div class="field-group">
-                  <label for="handwritingFont">Font Style</label>
-                  <select id="handwritingFont">
-                    <option value="'Caveat', cursive">Natural Handwriting</option>
-                    <option value="'Patrick Hand', cursive">Simple Handwriting</option>
-                    <option value="'Kalam', cursive">Notebook Handwriting</option>
-                    <option value="'Shadows Into Light', cursive">Light Handwriting</option>
-                    <option value="serif">Classic Serif</option>
-                    <option value="sans-serif">Clean Sans Serif</option>
-                  </select>
-                </div>
-
-                <div class="field-group">
-                  <div class="range-heading">
-                    <label for="fontSize">Font Size</label>
-                    <output id="fontSizeValue">27 px</output>
-                  </div>
-                  <input id="fontSize" type="range" min="16" max="48" value="27">
-                </div>
-
-                <div class="field-group">
-                  <div class="range-heading">
-                    <label for="lineSpacing">Line Spacing</label>
-                    <output id="lineSpacingValue">1.7</output>
-                  </div>
-                  <input id="lineSpacing" type="range" min="1.1" max="2.5" step="0.1" value="1.7">
-                </div>
-
-                <div class="field-group">
-                  <label for="fontWeight">Writing Thickness</label>
-                  <select id="fontWeight">
-                    <option value="400">Normal</option>
-                    <option value="500">Medium</option>
-                    <option value="600">Bold</option>
-                    <option value="700">Extra Bold</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="settings-card">
-                <div class="settings-title">
-                  <span class="settings-number">03</span>
-                  <div>
-                    <h3>Ink & Paper</h3>
-                    <p>Customize the page appearance.</p>
-                  </div>
-                </div>
-
-                <div class="field-group">
-                  <label for="inkColor">Ink Color</label>
-                  <div class="color-control">
-                    <input type="color" id="inkColor" value="#193b79">
-                    <span id="inkColorLabel">Blue Ink</span>
-                  </div>
-                </div>
-
-                <div class="field-group">
-                  <label for="paperStyle">Paper Style</label>
-                  <select id="paperStyle">
-                    <option value="lined">Lined Notebook</option>
-                    <option value="plain">Plain White</option>
-                    <option value="grid">Grid Paper</option>
-                    <option value="margin">Lined with Margin</option>
-                    <option value="cream">Cream Paper</option>
-                  </select>
-                </div>
-
-                <div class="field-group">
-                  <label for="paperSize">Page Size</label>
-                  <select id="paperSize">
-                    <option value="a4">A4 Portrait</option>
-                    <option value="letter">Letter Portrait</option>
-                    <option value="a5">A5 Portrait</option>
-                  </select>
-                </div>
-
-                <div class="field-group">
-                  <label for="textAlign">Text Alignment</label>
-                  <select id="textAlign">
-                    <option value="left">Align Left</option>
-                    <option value="center">Center</option>
-                    <option value="right">Align Right</option>
-                    <option value="justify">Justify</option>
-                  </select>
-                </div>
-
-                <div class="field-group">
-                  <label for="pagePadding">Page Margins</label>
-                  <select id="pagePadding">
-                    <option value="28px">Narrow</option>
-                    <option value="42px" selected>Normal</option>
-                    <option value="60px">Wide</option>
-                  </select>
-                </div>
-
-                <label class="toggle-row">
-                  <span>
-                    <strong>Show Watermark</strong>
-                    <small>Display Naol Converter on the page</small>
-                  </span>
-                  <input type="checkbox" id="showWatermark" checked>
-                  <span class="toggle-switch"></span>
-                </label>
-
-                <label class="toggle-row">
-                  <span>
-                    <strong>Show Date</strong>
-                    <small>Add today's date to the page</small>
-                  </span>
-                  <input type="checkbox" id="showDate">
-                  <span class="toggle-switch"></span>
-                </label>
-              </div>
-            </div>
-
-            <div class="preview-column">
-              <div class="preview-toolbar">
-                <div>
-                  <span class="preview-live-dot"></span>
-                  <strong>LIVE PREVIEW</strong>
-                </div>
-                <span class="mini-tag" id="pageSizeLabel">A4 PAGE</span>
-              </div>
-
-              <div class="paper-stage">
-                <div id="paperPreview" class="paper-preview paper-lined">
-                  <div class="paper-date" id="paperDate"></div>
-                  <div id="handwritingOutput" class="handwriting-output">Your handwriting preview will appear here...</div>
-                  <div id="watermark" class="watermark">Naol Converter</div>
-                </div>
-              </div>
-
-              <div class="export-card">
-                <div>
-                  <h3>Export Your Page</h3>
-                  <p>Save your customized handwriting design.</p>
-                </div>
-
-                <div class="export-grid">
-                  <button class="export-button export-png" id="exportPng" type="button">
-                    <span>▧</span>
-                    <strong>PNG Image</strong>
-                    <small>High-quality image</small>
-                  </button>
-
-                  <button class="export-button export-jpg" id="exportJpg" type="button">
-                    <span>▧</span>
-                    <strong>JPG Image</strong>
-                    <small>Compressed image</small>
-                  </button>
-
-                  <button class="export-button export-pdf" id="exportPdf" type="button">
-                    <span>▤</span>
-                    <strong>PDF Document</strong>
-                    <small>Printable document</small>
-                  </button>
-
-                  <button class="export-button export-print" id="printPage" type="button">
-                    <span>⎙</span>
-                    <strong>Print Page</strong>
-                    <small>Print or save as PDF</small>
-                  </button>
-                </div>
-
-                <div class="export-status" id="exportStatus" role="status" aria-live="polite"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <footer class="app-footer">
-          <span>© 2026 Naol Converter</span>
-          <span>Built for faster text workflows</span>
-        </footer>
-      </section>
     </section>
+
+    <!-- TEXT TO HANDWRITING -->
+
+    <section class="tool-view" id="handwritingView">
+
+      <div class="converter-card">
+
+        <div class="section-heading">
+          <h2>✍️ Text to Handwriting</h2>
+          <p>
+            Type or paste your text and preview it in a handwriting-style
+            page. You can customize the page and export it.
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label for="handwritingText">Your text</label>
+
+          <textarea
+            id="handwritingText"
+            rows="7"
+            placeholder="Type or paste your text here..."
+          ></textarea>
+        </div>
+
+        <div class="button-row">
+          <button id="pasteText" type="button">📋 Paste Text</button>
+          <button id="clearHandwriting" type="button">🗑 Clear</button>
+        </div>
+
+        <div class="paper-controls">
+
+          <div class="form-group">
+            <label for="handwritingFont">Handwriting font</label>
+
+            <select id="handwritingFont">
+              <option value="Comic Sans MS">Casual Handwriting</option>
+              <option value="Segoe Print">Segoe Print</option>
+              <option value="Bradley Hand">Bradley Hand</option>
+              <option value="cursive">Cursive</option>
+              <option value="Georgia">Georgia</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="fontSize">Font size</label>
+
+            <select id="fontSize">
+              <option value="16">Small</option>
+              <option value="20" selected>Medium</option>
+              <option value="24">Large</option>
+              <option value="30">Extra Large</option>
+            </select>
+
+            <small id="fontSizeValue">20 px</small>
+          </div>
+
+          <div class="form-group">
+            <label for="lineSpacing">Line spacing</label>
+
+            <select id="lineSpacing">
+              <option value="1.4">Compact</option>
+              <option value="1.8" selected>Normal</option>
+              <option value="2.2">Wide</option>
+              <option value="2.6">Extra Wide</option>
+            </select>
+
+            <small id="lineSpacingValue">1.8</small>
+          </div>
+
+          <div class="form-group">
+            <label for="inkColor">Ink color</label>
+
+            <select id="inkColor">
+              <option value="#172b72">Blue Ink</option>
+              <option value="#171717">Black Ink</option>
+              <option value="#8b1e3f">Red Ink</option>
+              <option value="#246b45">Green Ink</option>
+            </select>
+
+            <small id="inkColorLabel">Blue Ink</small>
+          </div>
+
+          <div class="form-group">
+            <label for="paperStyle">Paper style</label>
+
+            <select id="paperStyle">
+              <option value="plain">Plain Paper</option>
+              <option value="ruled" selected>Ruled Paper</option>
+              <option value="grid">Grid Paper</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="paperSize">Paper size</label>
+
+            <select id="paperSize">
+              <option value="A4" selected>A4</option>
+              <option value="Letter">Letter</option>
+              <option value="A5">A5</option>
+            </select>
+
+            <small id="pageSizeLabel">A4 page</small>
+          </div>
+
+          <div class="form-group">
+            <label for="textAlign">Text alignment</label>
+
+            <select id="textAlign">
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+              <option value="justify">Justify</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="pagePadding">Page margin</label>
+
+            <select id="pagePadding">
+              <option value="18">Narrow</option>
+              <option value="30" selected>Normal</option>
+              <option value="45">Wide</option>
+            </select>
+          </div>
+
+        </div>
+
+        <label class="checkbox-line">
+          <input type="checkbox" id="showWatermark" checked>
+          Show Naol Converter watermark
+        </label>
+
+        <label class="checkbox-line">
+          <input type="checkbox" id="showDate" checked>
+          Show date
+        </label>
+
+        <div class="section-heading" style="margin-top:30px;">
+          <h2>📄 Live Preview</h2>
+          <p>Your page updates as you change the text and settings.</p>
+        </div>
+
+        <div id="paperPreview" class="paper-preview ruled">
+
+          <h3>Naol Converter</h3>
+
+          <div id="handwritingOutput">
+            Your handwriting preview will appear here.
+          </div>
+
+          <div id="watermark">Naol Converter</div>
+
+          <div id="paperDate"></div>
+
+        </div>
+
+        <div class="button-row" style="margin-top:20px;">
+          <button id="exportPng" type="button">🖼 Export PNG</button>
+          <button id="exportJpg" type="button">🖼 Export JPG</button>
+          <button id="exportPdf" type="button">📄 Export PDF</button>
+          <button id="printPage" type="button">🖨 Print</button>
+        </div>
+
+        <p id="exportStatus" role="status" aria-live="polite"></p>
+
+      </div>
+
+    </section>
+
   </main>
 
-  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+  <footer>
+    <strong>Naol Converter</strong><br>
+    Simple tools for images, text, and handwriting.<br>
+    OCR accuracy depends on image quality and supported languages.
+  </footer>
+
+  <!-- Main JavaScript -->
+  <script src="script.js"></script>
+
 </body>
 </html>
