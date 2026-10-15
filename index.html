@@ -1,654 +1,745 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Naol Converter | Smart Handwriting & Text Studio</title>
+    <title>Naol Converter | Smart Writing Studio</title>
 
-  <meta
-    name="description"
-    content="Naol Converter converts handwriting images and documents into editable text and transforms text into beautiful handwriting styles."
-  >
+    <meta name="description"
+          content="Convert handwriting images to computer text and transform typed text into handwriting styles.">
 
-  <meta name="theme-color" content="#101426">
+    <meta name="theme-color" content="#0b1020">
 
-  <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="./style.css">
 
-  <!-- OCR engine -->
-  <script
-    defer
-    src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
-  </script>
+    <!-- OCR engine -->
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
-  <!-- PDF reader -->
-  <script
-    defer
-    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
-  </script>
+    <!-- PDF reader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
-  <!-- Export image -->
-  <script
-    defer
-    src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
-  </script>
-
-  <!-- PDF export -->
-  <script
-    defer
-    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
-  </script>
-
-  <script defer src="./script.js"></script>
+    <!-- Export tools -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 
 <body>
 
-  <header class="topbar">
-    <a href="#" class="brand">
-      <span class="brand-logo">N</span>
+<div class="app">
 
-      <span>
-        <strong>Naol Converter</strong>
-        <small>Smart Text Studio</small>
-      </span>
-    </a>
+    <!-- HEADER -->
+    <header class="header">
 
-    <nav class="top-nav">
-      <a href="#converter">Converter</a>
-      <a href="#editor">Editor</a>
-      <a href="#download">Download</a>
-    </nav>
+        <a href="#" class="brand" aria-label="Naol Converter Home">
+            <span class="brand-icon">N</span>
 
-    <button id="themeToggle" class="icon-button" type="button"
-      aria-label="Toggle appearance">
-      ☀️
-    </button>
-  </header>
-
-  <main class="container">
-
-    <section class="hero">
-      <div class="hero-badge">
-        ✨ SMART TEXT TECHNOLOGY
-      </div>
-
-      <h1>
-        Your handwriting.<br>
-        <span>Transformed beautifully.</span>
-      </h1>
-
-      <p>
-        Convert handwriting into editable text, style your words,
-        create beautiful captions, and download your finished work.
-      </p>
-
-      <div class="hero-actions">
-        <a href="#converter" class="primary-button">
-          Start Converting →
+            <span class="brand-text">
+                <strong>Naol Converter</strong>
+                <small>SMART WRITING STUDIO</small>
+            </span>
         </a>
 
-        <a href="#editor" class="secondary-button">
-          Open Text Editor
-        </a>
-      </div>
-    </section>
-
-    <section id="converter" class="workspace">
-
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">WORKSPACE</span>
-          <h2>Choose your content</h2>
-          <p>Upload an image, PDF, or video frame, or use your camera.</p>
-        </div>
-
-        <span class="online-indicator">
-          <span></span> Ready to use
+        <span class="header-status">
+            <span class="online-dot"></span>
+            Writing Studio
         </span>
-      </div>
 
-      <div class="upload-grid">
+    </header>
 
-        <label class="upload-card" for="imageUpload">
-          <span class="upload-icon">🖼️</span>
-          <strong>Upload Image</strong>
-          <small>JPG, PNG, WEBP, BMP</small>
-          <span class="upload-link">Choose image</span>
-        </label>
 
-        <label class="upload-card" for="pdfUpload">
-          <span class="upload-icon">📄</span>
-          <strong>Upload PDF</strong>
-          <small>Read text from PDF pages</small>
-          <span class="upload-link">Choose PDF</span>
-        </label>
+    <!-- HERO -->
+    <main>
 
-        <label class="upload-card" for="videoUpload">
-          <span class="upload-icon">🎥</span>
-          <strong>Upload Video</strong>
-          <small>Extract a frame and read text</small>
-          <span class="upload-link">Choose video</span>
-        </label>
+        <section class="hero">
 
-        <button class="upload-card camera-card" id="openCamera"
-          type="button">
-          <span class="upload-icon">📷</span>
-          <strong>Open Camera</strong>
-          <small>Take a photo of your writing</small>
-          <span class="upload-link">Start camera</span>
-        </button>
+            <span class="hero-label">WELCOME TO NAOL STUDIO</span>
 
-      </div>
+            <h1>
+                Your writing.<br>
+                <span>Transformed.</span>
+            </h1>
 
-      <input
-        id="imageUpload"
-        type="file"
-        accept="image/*"
-        hidden
-      >
+            <p>
+                Convert handwritten notes into editable text,
+                or transform your typed words into beautiful handwriting.
+            </p>
 
-      <input
-        id="pdfUpload"
-        type="file"
-        accept="application/pdf,.pdf"
-        hidden
-      >
+        </section>
 
-      <input
-        id="videoUpload"
-        type="file"
-        accept="video/*"
-        hidden
-      >
 
-      <div id="cameraPanel" class="camera-panel hidden">
+        <!-- TWO MAIN OPTIONS -->
+        <section class="mode-grid" aria-label="Choose conversion mode">
 
-        <div class="camera-header">
-          <h3>Camera scanner</h3>
+            <!-- OPTION 1 -->
+            <button
+                type="button"
+                class="mode-card"
+                id="handwritingModeBtn"
+                data-mode="ocr"
+            >
 
-          <button id="closeCamera" class="icon-button"
-            type="button">
-            ✕
-          </button>
+                <span class="mode-number">01</span>
+
+                <span class="mode-icon">▧</span>
+
+                <span class="mode-title">
+                    Handwriting to Computer
+                </span>
+
+                <span class="mode-description">
+                    Upload a photo or PDF of handwritten notes
+                    and extract editable text.
+                </span>
+
+                <span class="mode-action">
+                    Convert handwriting <span>→</span>
+                </span>
+
+            </button>
+
+
+            <!-- OPTION 2 -->
+            <button
+                type="button"
+                class="mode-card"
+                id="computerModeBtn"
+                data-mode="writing"
+            >
+
+                <span class="mode-number">02</span>
+
+                <span class="mode-icon">✍</span>
+
+                <span class="mode-title">
+                    Computer to Handwriting
+                </span>
+
+                <span class="mode-description">
+                    Type or paste your text and transform it
+                    into a handwriting-style design.
+                </span>
+
+                <span class="mode-action">
+                    Create handwriting <span>→</span>
+                </span>
+
+            </button>
+
+        </section>
+
+
+        <!-- GLOBAL STATUS -->
+        <div
+            id="globalStatus"
+            class="global-status"
+            role="status"
+            aria-live="polite"
+        >
+            <span class="status-dot"></span>
+            <span id="globalStatusText">
+                Choose one of the two options above to begin.
+            </span>
         </div>
 
-        <video id="cameraVideo" autoplay playsinline muted></video>
 
-        <div class="camera-actions">
-          <button id="capturePhoto" class="primary-button"
-            type="button">
-            📸 Capture Photo
-          </button>
-        </div>
+        <!-- ===================================== -->
+        <!-- MODE 1: HANDWRITING TO COMPUTER TEXT -->
+        <!-- ===================================== -->
 
-        <p id="cameraStatus" class="helper-text">
-          Allow camera permission when prompted.
-        </p>
-
-      </div>
-
-      <div id="videoPanel" class="camera-panel hidden">
-
-        <div class="camera-header">
-          <h3>Video frame scanner</h3>
-
-          <button id="closeVideo" class="icon-button"
-            type="button">
-            ✕
-          </button>
-        </div>
-
-        <video id="videoPlayer" controls playsinline></video>
-
-        <label class="field-label" for="videoTime">
-          Select video time in seconds
-        </label>
-
-        <input
-          id="videoTime"
-          type="number"
-          min="0"
-          step="0.5"
-          value="0"
-          class="number-input"
+        <section
+            id="ocrWorkspace"
+            class="workspace"
+            hidden
         >
 
-        <button id="extractFrame" class="primary-button"
-          type="button">
-          Extract Frame & Read Text
-        </button>
+            <div class="workspace-heading">
 
-        <p class="helper-text">
-          This scans a selected video frame, not every frame of the
-          entire video.
-        </p>
+                <div>
+                    <span class="section-kicker">MODE 01</span>
 
-      </div>
+                    <h2>Handwriting to Computer</h2>
 
-      <div id="filePreviewPanel" class="preview-panel hidden">
+                    <p>
+                        Select an image or PDF, then start text recognition.
+                    </p>
+                </div>
 
-        <div class="preview-heading">
-          <div>
-            <h3>Selected document</h3>
-            <p id="fileName">No file selected</p>
-          </div>
+                <button
+                    type="button"
+                    class="back-button"
+                    id="backFromOcrBtn"
+                >
+                    ← Back
+                </button>
 
-          <button id="removeFile" class="text-button"
-            type="button">
-            Remove
-          </button>
-        </div>
-
-        <img id="sourceImage" alt="Selected document preview">
-
-        <div id="pdfInfo" class="pdf-info hidden"></div>
-
-        <div class="preview-actions">
-          <button id="convertButton" class="primary-button"
-            type="button">
-            ✨ Convert to Text
-          </button>
-        </div>
-
-      </div>
-
-      <div id="progressPanel" class="progress-panel hidden">
-
-        <div class="progress-heading">
-          <span id="progressMessage">Preparing...</span>
-          <span id="progressPercent">0%</span>
-        </div>
-
-        <div class="progress-track">
-          <div id="progressBar"></div>
-        </div>
-
-        <p id="progressDetail" class="helper-text">
-          Please wait.
-        </p>
-
-      </div>
-
-      <div id="errorBox" class="message-box error-box hidden"
-        role="alert"></div>
-
-      <div id="successBox" class="message-box success-box hidden"
-        role="status"></div>
-
-    </section>
-
-    <section class="editor-section" id="editor">
-
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">CREATIVE STUDIO</span>
-          <h2>Text & handwriting editor</h2>
-          <p>Edit your text and see the result instantly.</p>
-        </div>
-      </div>
-
-      <div class="editor-layout">
-
-        <div class="editor-controls">
-
-          <div class="control-card">
-
-            <h3>✍️ Your text</h3>
-
-            <label for="inputText" class="field-label">
-              Enter or edit text
-            </label>
-
-            <textarea
-              id="inputText"
-              placeholder="Your converted text will appear here. You can also type or paste text..."
-              spellcheck="true"
-            ></textarea>
-
-            <div class="editor-buttons">
-              <button id="clearText" class="secondary-button"
-                type="button">
-                Clear
-              </button>
-
-              <button id="copyText" class="secondary-button"
-                type="button">
-                Copy text
-              </button>
             </div>
 
-          </div>
 
-          <div class="control-card">
+            <!-- INPUT METHOD TABS -->
+            <div class="input-tabs">
 
-            <h3>🎨 Text appearance</h3>
+                <button
+                    type="button"
+                    class="input-tab active"
+                    id="imageTabBtn"
+                >
+                    🖼️ Image
+                </button>
 
-            <label class="field-label" for="fontFamily">
-              Font style
-            </label>
+                <button
+                    type="button"
+                    class="input-tab"
+                    id="pdfTabBtn"
+                >
+                    📄 PDF
+                </button>
 
-            <select id="fontFamily" class="form-control">
-              <option value="hand1">Handwriting — Casual</option>
-              <option value="hand2">Handwriting — Elegant</option>
-              <option value="hand3">Handwriting — School</option>
-              <option value="hand4">Handwriting — Creative</option>
-              <option value="Arial, sans-serif">Arial</option>
-              <option value="Georgia, serif">Georgia</option>
-              <option value="'Courier New', monospace">Typewriter</option>
-              <option value="Verdana, sans-serif">Verdana</option>
-            </select>
+                <button
+                    type="button"
+                    class="input-tab"
+                    id="cameraTabBtn"
+                >
+                    📷 Camera
+                </button>
 
-            <div class="two-columns">
+            </div>
 
-              <div>
-                <label for="fontSize" class="field-label">
-                  Font size
+
+            <!-- IMAGE PANEL -->
+            <div id="imagePanel" class="input-panel">
+
+                <label for="imageInput" class="drop-zone" id="imageDropZone">
+
+                    <span class="drop-icon">↑</span>
+
+                    <strong>Upload your handwriting image</strong>
+
+                    <span>
+                        Tap here to select a photo from your device.
+                    </span>
+
+                    <span class="supported-formats">
+                        JPG · JPEG · PNG · WEBP · BMP
+                    </span>
+
+                    <span class="select-file-button">
+                        Choose Image
+                    </span>
+
                 </label>
 
-                <input id="fontSize" type="range"
-                  min="12" max="64" value="28">
+                <input
+                    type="file"
+                    id="imageInput"
+                    accept="image/jpeg,image/png,image/webp,image/bmp,image/*"
+                    hidden
+                >
 
-                <span id="fontSizeValue" class="value-label">
-                  28 px
-                </span>
-              </div>
 
-              <div>
-                <label for="lineSpacing" class="field-label">
-                  Line spacing
+                <div id="imagePreviewCard" class="preview-card" hidden>
+
+                    <div class="preview-heading">
+                        <div>
+                            <h3>Selected Image</h3>
+                            <p>Confirm the image before conversion.</p>
+                        </div>
+
+                        <button
+                            type="button"
+                            id="removeImageBtn"
+                            class="small-button"
+                        >
+                            Remove
+                        </button>
+                    </div>
+
+                    <img
+                        id="sourceImage"
+                        class="source-image"
+                        alt="Uploaded handwriting preview"
+                    >
+
+                    <div class="file-information">
+                        <span id="imageFileName"></span>
+                        <span id="imageDimensions"></span>
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="ocrLanguage">
+                            Recognition language
+                        </label>
+
+                        <select id="ocrLanguage">
+
+                            <option value="eng">English</option>
+
+                            <option value="amh">
+                                Amharic (Ethiopic)
+                            </option>
+
+                        </select>
+
+                        <small>
+                            Recognition quality depends on image clarity
+                            and the selected language.
+                        </small>
+
+                    </div>
+
+
+                    <button
+                        type="button"
+                        id="convertImageBtn"
+                        class="primary-button full-button"
+                    >
+                        ✦ Convert Image to Text
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- PDF PANEL -->
+            <div id="pdfPanel" class="input-panel" hidden>
+
+                <label for="pdfInput" class="drop-zone">
+
+                    <span class="drop-icon">PDF</span>
+
+                    <strong>Upload a PDF document</strong>
+
+                    <span>
+                        Select a PDF to extract its readable text.
+                    </span>
+
+                    <span class="select-file-button">
+                        Choose PDF
+                    </span>
+
                 </label>
 
-                <input id="lineSpacing" type="range"
-                  min="1" max="2.5" step="0.1" value="1.5">
+                <input
+                    type="file"
+                    id="pdfInput"
+                    accept=".pdf,application/pdf"
+                    hidden
+                >
 
-                <span id="lineSpacingValue" class="value-label">
-                  1.5
-                </span>
-              </div>
 
-            </div>
+                <div id="pdfPreviewCard" class="preview-card" hidden>
 
-            <div class="two-columns">
+                    <div class="preview-heading">
+                        <div>
+                            <h3>PDF Document</h3>
+                            <p id="pdfPageInfo">Reading document information...</p>
+                        </div>
 
-              <div>
-                <label for="textColor" class="field-label">
-                  Text color
-                </label>
+                        <button
+                            type="button"
+                            id="removePdfBtn"
+                            class="small-button"
+                        >
+                            Remove
+                        </button>
+                    </div>
 
-                <input id="textColor" type="color" value="#172554">
-              </div>
+                    <div class="pdf-file-information">
+                        <span class="pdf-symbol">PDF</span>
 
-              <div>
-                <label for="paperColor" class="field-label">
-                  Paper color
-                </label>
+                        <div>
+                            <strong id="pdfFileName"></strong>
+                            <small id="pdfFileSize"></small>
+                        </div>
+                    </div>
 
-                <input id="paperColor" type="color" value="#ffffff">
-              </div>
 
-            </div>
+                    <div class="form-grid">
 
-            <label for="paperStyle" class="field-label">
-              Paper style
-            </label>
+                        <div class="form-group">
+                            <label for="pdfStartPage">First page</label>
 
-            <select id="paperStyle" class="form-control">
-              <option value="plain">Plain paper</option>
-              <option value="lined">Lined paper</option>
-              <option value="grid">Grid paper</option>
-              <option value="dots">Dot paper</option>
-            </select>
+                            <input
+                                type="number"
+                                id="pdfStartPage"
+                                min="1"
+                                value="1"
+                            >
+                        </div>
 
-            <label for="textAlign" class="field-label">
-              Alignment
-            </label>
+                        <div class="form-group">
+                            <label for="pdfEndPage">Last page</label>
 
-            <select id="textAlign" class="form-control">
-              <option value="left">Left</option>
-              <option value="center">Center</option>
-              <option value="right">Right</option>
-              <option value="justify">Justify</option>
-            </select>
+                            <input
+                                type="number"
+                                id="pdfEndPage"
+                                min="1"
+                                value="1"
+                            >
+                        </div>
 
-            <div class="toggle-grid">
+                    </div>
 
-              <label class="toggle-option">
-                <input type="checkbox" id="boldText">
-                <span><b>B</b> Bold</span>
-              </label>
 
-              <label class="toggle-option">
-                <input type="checkbox" id="italicText">
-                <span><i>I</i> Italic</span>
-              </label>
+                    <div class="form-group">
 
-              <label class="toggle-option">
-                <input type="checkbox" id="underlineText">
-                <span><u>U</u> Underline</span>
-              </label>
+                        <label for="pdfLanguage">
+                            OCR language for scanned pages
+                        </label>
 
-              <label class="toggle-option">
-                <input type="checkbox" id="shadowText">
-                <span>Shadow</span>
-              </label>
+                        <select id="pdfLanguage">
+                            <option value="eng">English</option>
+                            <option value="amh">Amharic (Ethiopic)</option>
+                        </select>
 
-            </div>
+                    </div>
 
-            <label for="textOutline" class="field-label">
-              Text outline
-            </label>
 
-            <select id="textOutline" class="form-control">
-              <option value="none">None</option>
-              <option value="1px">Light outline</option>
-              <option value="2px">Strong outline</option>
-            </select>
+                    <button
+                        type="button"
+                        id="convertPdfBtn"
+                        class="primary-button full-button"
+                    >
+                        ✦ Extract PDF Text
+                    </button>
 
-            <label for="textOutlineColor" class="field-label">
-              Outline color
-            </label>
-
-            <input id="textOutlineColor" type="color"
-              value="#ffffff">
-
-          </div>
-
-          <div class="control-card">
-
-            <h3>💬 Caption designer</h3>
-
-            <label for="captionText" class="field-label">
-              Caption
-            </label>
-
-            <input id="captionText" class="form-control"
-              type="text" placeholder="Write your caption...">
-
-            <label for="captionStyle" class="field-label">
-              Caption template
-            </label>
-
-            <select id="captionStyle" class="form-control">
-              <option value="modern">Modern</option>
-              <option value="gradient">Gradient</option>
-              <option value="classic">Classic</option>
-              <option value="outline">Outline</option>
-              <option value="badge">Badge</option>
-              <option value="minimal">Minimal</option>
-            </select>
-
-            <div class="two-columns">
-
-              <div>
-                <label for="captionColor" class="field-label">
-                  Caption color
-                </label>
-
-                <input id="captionColor" type="color"
-                  value="#ffffff">
-              </div>
-
-              <div>
-                <label for="captionBg" class="field-label">
-                  Caption background
-                </label>
-
-                <input id="captionBg" type="color"
-                  value="#5145cd">
-              </div>
+                </div>
 
             </div>
 
-            <label for="captionPosition" class="field-label">
-              Caption position
-            </label>
 
-            <select id="captionPosition" class="form-control">
-              <option value="top">Top</option>
-              <option value="middle">Middle</option>
-              <option value="bottom">Bottom</option>
-            </select>
+            <!-- CAMERA PANEL -->
+            <div id="cameraPanel" class="input-panel" hidden>
 
-            <label for="captionSize" class="field-label">
-              Caption size
-            </label>
+                <div class="camera-instructions">
+                    <span class="camera-large-icon">📷</span>
 
-            <input id="captionSize" type="range"
-              min="12" max="40" value="20">
+                    <h3>Scan your handwritten notes</h3>
 
-            <label class="toggle-option">
-              <input type="checkbox" id="showCaption" checked>
-              <span>Show caption in download</span>
-            </label>
+                    <p>
+                        Open the camera on your phone, take a photo,
+                        and convert it to text.
+                    </p>
 
-          </div>
+                    <label for="cameraInput" class="primary-button camera-button">
+                        Open Phone Camera
+                    </label>
 
-        </div>
+                    <input
+                        type="file"
+                        id="cameraInput"
+                        accept="image/*"
+                        capture="environment"
+                        hidden
+                    >
 
-        <div class="preview-column">
-
-          <div class="preview-toolbar">
-            <div>
-              <span class="eyebrow">LIVE PREVIEW</span>
-              <h3>Your design</h3>
-            </div>
-
-            <span class="live-badge">● LIVE</span>
-          </div>
-
-          <div id="designCanvas" class="design-canvas">
-
-            <div id="captionPreview" class="caption-preview">
-              Your beautiful caption ✨
-            </div>
-
-            <div id="paperPreview" class="paper-preview">
-
-              <div id="renderedText" class="rendered-text">
-                Your text will appear here.
-
-                Start by typing in the editor or upload a document
-                to extract its text.
-              </div>
+                </div>
 
             </div>
 
-            <div class="watermark">
-              <span>Naol Converter</span>
+
+            <!-- OCR PROGRESS -->
+            <div id="progressContainer" class="progress-card" hidden>
+
+                <div class="progress-top">
+
+                    <span id="progressLabel">
+                        Preparing conversion...
+                    </span>
+
+                    <strong id="progressPercent">0%</strong>
+
+                </div>
+
+                <div class="progress-track">
+                    <div id="progressBar" class="progress-fill"></div>
+                </div>
+
+                <p id="progressDetails">
+                    Please wait while your document is processed.
+                </p>
+
             </div>
 
-          </div>
 
-          <div class="preview-notice">
-            <span>🔒</span>
-            <p>
-              Your export includes Naol Converter branding.
-              Handwriting appearance depends on the selected font.
-            </p>
-          </div>
+            <!-- OCR RESULT -->
+            <div id="resultCard" class="preview-card" hidden>
 
-          <div id="download" class="download-card">
+                <div class="preview-heading">
 
-            <h3>📥 Download your work</h3>
+                    <div>
+                        <h3>Converted Text</h3>
+                        <p>Edit the extracted text if necessary.</p>
+                    </div>
 
-            <p>Choose your preferred format.</p>
+                    <span class="success-label">Result</span>
 
-            <button id="downloadPng" class="download-button"
-              type="button">
-              🖼️ Download PNG
-            </button>
+                </div>
 
-            <button id="downloadPdf" class="download-button"
-              type="button">
-              📄 Download PDF
-            </button>
 
-            <button id="downloadTxt" class="download-button"
-              type="button">
-              📝 Download TXT
-            </button>
+                <div class="form-group">
 
-            <p id="downloadStatus" class="helper-text"></p>
+                    <label for="outputText">Your editable text</label>
 
-          </div>
+                    <textarea
+                        id="outputText"
+                        rows="12"
+                        placeholder="Converted text will appear here..."
+                    ></textarea>
 
-        </div>
+                </div>
 
-      </div>
 
-    </section>
+                <div class="result-toolbar">
 
-    <section class="features-section">
+                    <span id="characterCount">0 characters</span>
 
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">MADE FOR CREATIVITY</span>
-          <h2>One workspace. Many possibilities.</h2>
-        </div>
-      </div>
+                    <div class="button-row">
 
-      <div class="feature-grid">
+                        <button
+                            type="button"
+                            id="copyTextBtn"
+                            class="secondary-button"
+                        >
+                            Copy
+                        </button>
 
-        <article class="feature-card">
-          <span>⚡</span>
-          <h3>Fast processing</h3>
-          <p>
-            Start text recognition in your browser with visible progress.
-          </p>
-        </article>
+                        <button
+                            type="button"
+                            id="downloadTextBtn"
+                            class="primary-button"
+                        >
+                            Download TXT
+                        </button>
 
-        <article class="feature-card">
-          <span>🎨</span>
-          <h3>Creative styling</h3>
-          <p>
-            Customize typography, paper, colors, spacing and captions.
-          </p>
-        </article>
+                    </div>
 
-        <article class="feature-card">
-          <span>📥</span>
-          <h3>Easy downloads</h3>
-          <p>
-            Export your work as an image, PDF or plain text.
-          </p>
-        </article>
+                </div>
 
-      </div>
 
-    </section>
+                <button
+                    type="button"
+                    id="sendToHandwritingBtn"
+                    class="secondary-button full-button"
+                >
+                    ✍ Send Text to Handwriting Studio
+                </button>
 
-  </main>
+            </div>
 
-  <footer class="footer">
-    <a href="#" class="footer-brand">Naol Converter</a>
+        </section>
 
-    <p>
-      Smart text conversion and creative editing.
-    </p>
 
-    <small>© <span id="currentYear"></span> Naol Converter</small>
-  </footer>
+        <!-- ===================================== -->
+        <!-- MODE 2: COMPUTER TEXT TO HANDWRITING -->
+        <!-- ===================================== -->
+
+        <section
+            id="writingWorkspace"
+            class="workspace"
+            hidden
+        >
+
+            <div class="workspace-heading">
+
+                <div>
+                    <span class="section-kicker">MODE 02</span>
+
+                    <h2>Computer to Handwriting</h2>
+
+                    <p>
+                        Type your text and customize its appearance.
+                    </p>
+                </div>
+
+                <button
+                    type="button"
+                    class="back-button"
+                    id="backFromWritingBtn"
+                >
+                    ← Back
+                </button>
+
+            </div>
+
+
+            <div class="preview-card">
+
+                <div class="form-group">
+
+                    <label for="handwritingInput">
+                        Enter or paste your text
+                    </label>
+
+                    <textarea
+                        id="handwritingInput"
+                        rows="7"
+                        placeholder="Start typing your text here..."
+                    ></textarea>
+
+                </div>
+
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+
+                        <label for="handwritingFont">
+                            Writing style
+                        </label>
+
+                        <select id="handwritingFont">
+
+                            <option value="cursive">
+                                Cursive
+                            </option>
+
+                            <option value="serif">
+                                Classic
+                            </option>
+
+                            <option value="sans-serif">
+                                Modern
+                            </option>
+
+                            <option value="monospace">
+                                Typewriter
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="writingColor">
+                            Ink color
+                        </label>
+
+                        <input
+                            type="color"
+                            id="writingColor"
+                            value="#172554"
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="writingSize">
+                            Text size
+                        </label>
+
+                        <select id="writingSize">
+
+                            <option value="18">Small</option>
+
+                            <option value="24" selected>Medium</option>
+
+                            <option value="32">Large</option>
+
+                            <option value="40">Extra Large</option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="paperStyle">
+                            Paper style
+                        </label>
+
+                        <select id="paperStyle">
+
+                            <option value="plain">Plain Paper</option>
+
+                            <option value="lined">Lined Paper</option>
+
+                            <option value="grid">Grid Paper</option>
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div class="preview-heading">
+
+                    <div>
+                        <h3>Live Handwriting Preview</h3>
+                        <p>Your design updates as you type.</p>
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="paperPreview"
+                    class="paper-preview plain-paper"
+                >
+
+                    <div
+                        id="handwritingPreview"
+                        class="handwriting-preview"
+                    >Your handwriting preview will appear here.</div>
+
+                    <div class="watermark">
+                        Naol Converter
+                    </div>
+
+                </div>
+
+
+                <div class="button-row export-row">
+
+                    <button
+                        type="button"
+                        id="downloadHandwritingBtn"
+                        class="primary-button"
+                    >
+                        Download PNG
+                    </button>
+
+                    <button
+                        type="button"
+                        id="downloadHandwritingPdfBtn"
+                        class="secondary-button"
+                    >
+                        Download PDF
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <footer class="footer">
+
+        <strong>Naol Converter</strong>
+
+        <span>
+            Smart writing tools in one workspace.
+        </span>
+
+    </footer>
+
+</div>
+
+
+<!-- Application logic must load after the HTML -->
+<script src="./script.js"></script>
 
 </body>
 </html>
