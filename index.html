@@ -4,736 +4,651 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Naol Converter | Smart Writing Studio</title>
+  <title>Naol Converter | Smart Handwriting & Text Studio</title>
 
-  <meta name="description"
-        content="Naol Converter - Convert handwriting to editable text, customize writing styles, scan images and videos, and export beautiful documents.">
+  <meta
+    name="description"
+    content="Naol Converter converts handwriting images and documents into editable text and transforms text into beautiful handwriting styles."
+  >
 
-  <meta name="theme-color" content="#080d1b">
+  <meta name="theme-color" content="#101426">
 
-  <link rel="stylesheet" href="style.css">
-
-  <!-- Handwriting and display fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@400;500;600;700&family=Pacifico&family=Patrick+Hand&family=Shadows+Into+Light&display=swap"
-        rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
 
   <!-- OCR engine -->
-  <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script
+    defer
+    src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js">
+  </script>
 
-  <!-- Export libraries -->
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <!-- PDF reader -->
+  <script
+    defer
+    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js">
+  </script>
 
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <!-- Export image -->
+  <script
+    defer
+    src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js">
+  </script>
 
-  <script defer src="script.js"></script>
+  <!-- PDF export -->
+  <script
+    defer
+    src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
+  </script>
+
+  <script defer src="./script.js"></script>
 </head>
 
 <body>
 
-  <div class="app-shell">
+  <header class="topbar">
+    <a href="#" class="brand">
+      <span class="brand-logo">N</span>
 
-    <!-- SIDEBAR -->
+      <span>
+        <strong>Naol Converter</strong>
+        <small>Smart Text Studio</small>
+      </span>
+    </a>
 
-    <aside class="sidebar" id="sidebar">
+    <nav class="top-nav">
+      <a href="#converter">Converter</a>
+      <a href="#editor">Editor</a>
+      <a href="#download">Download</a>
+    </nav>
 
-      <a href="#" class="brand">
-        <div class="brand-logo">N</div>
+    <button id="themeToggle" class="icon-button" type="button"
+      aria-label="Toggle appearance">
+      ☀️
+    </button>
+  </header>
 
-        <div class="brand-copy">
-          <strong>Naol Converter</strong>
-          <span>Smart Writing Studio</span>
+  <main class="container">
+
+    <section class="hero">
+      <div class="hero-badge">
+        ✨ SMART TEXT TECHNOLOGY
+      </div>
+
+      <h1>
+        Your handwriting.<br>
+        <span>Transformed beautifully.</span>
+      </h1>
+
+      <p>
+        Convert handwriting into editable text, style your words,
+        create beautiful captions, and download your finished work.
+      </p>
+
+      <div class="hero-actions">
+        <a href="#converter" class="primary-button">
+          Start Converting →
+        </a>
+
+        <a href="#editor" class="secondary-button">
+          Open Text Editor
+        </a>
+      </div>
+    </section>
+
+    <section id="converter" class="workspace">
+
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">WORKSPACE</span>
+          <h2>Choose your content</h2>
+          <p>Upload an image, PDF, or video frame, or use your camera.</p>
         </div>
-      </a>
 
-      <div class="sidebar-label">WORKSPACE</div>
+        <span class="online-indicator">
+          <span></span> Ready to use
+        </span>
+      </div>
 
-      <button class="nav-item active" data-view="convert">
-        <span>✍️</span>
-        <span>Text Converter</span>
-      </button>
+      <div class="upload-grid">
 
-      <button class="nav-item" data-view="scan">
-        <span>📷</span>
-        <span>Image & Scanner</span>
-      </button>
+        <label class="upload-card" for="imageUpload">
+          <span class="upload-icon">🖼️</span>
+          <strong>Upload Image</strong>
+          <small>JPG, PNG, WEBP, BMP</small>
+          <span class="upload-link">Choose image</span>
+        </label>
 
-      <button class="nav-item" data-view="video">
-        <span>🎥</span>
-        <span>Video Scanner</span>
-      </button>
+        <label class="upload-card" for="pdfUpload">
+          <span class="upload-icon">📄</span>
+          <strong>Upload PDF</strong>
+          <small>Read text from PDF pages</small>
+          <span class="upload-link">Choose PDF</span>
+        </label>
 
-      <button class="nav-item" data-view="editor">
-        <span>🎨</span>
-        <span>Writing Editor</span>
-      </button>
+        <label class="upload-card" for="videoUpload">
+          <span class="upload-icon">🎥</span>
+          <strong>Upload Video</strong>
+          <small>Extract a frame and read text</small>
+          <span class="upload-link">Choose video</span>
+        </label>
 
-      <div class="sidebar-label">DOCUMENTS</div>
+        <button class="upload-card camera-card" id="openCamera"
+          type="button">
+          <span class="upload-icon">📷</span>
+          <strong>Open Camera</strong>
+          <small>Take a photo of your writing</small>
+          <span class="upload-link">Start camera</span>
+        </button>
 
-      <button class="nav-item" id="resetProject">
-        <span>🆕</span>
-        <span>New Project</span>
-      </button>
+      </div>
 
-      <div class="sidebar-bottom">
-        <div class="sidebar-badge">
-          <span class="status-dot"></span>
+      <input
+        id="imageUpload"
+        type="file"
+        accept="image/*"
+        hidden
+      >
+
+      <input
+        id="pdfUpload"
+        type="file"
+        accept="application/pdf,.pdf"
+        hidden
+      >
+
+      <input
+        id="videoUpload"
+        type="file"
+        accept="video/*"
+        hidden
+      >
+
+      <div id="cameraPanel" class="camera-panel hidden">
+
+        <div class="camera-header">
+          <h3>Camera scanner</h3>
+
+          <button id="closeCamera" class="icon-button"
+            type="button">
+            ✕
+          </button>
+        </div>
+
+        <video id="cameraVideo" autoplay playsinline muted></video>
+
+        <div class="camera-actions">
+          <button id="capturePhoto" class="primary-button"
+            type="button">
+            📸 Capture Photo
+          </button>
+        </div>
+
+        <p id="cameraStatus" class="helper-text">
+          Allow camera permission when prompted.
+        </p>
+
+      </div>
+
+      <div id="videoPanel" class="camera-panel hidden">
+
+        <div class="camera-header">
+          <h3>Video frame scanner</h3>
+
+          <button id="closeVideo" class="icon-button"
+            type="button">
+            ✕
+          </button>
+        </div>
+
+        <video id="videoPlayer" controls playsinline></video>
+
+        <label class="field-label" for="videoTime">
+          Select video time in seconds
+        </label>
+
+        <input
+          id="videoTime"
+          type="number"
+          min="0"
+          step="0.5"
+          value="0"
+          class="number-input"
+        >
+
+        <button id="extractFrame" class="primary-button"
+          type="button">
+          Extract Frame & Read Text
+        </button>
+
+        <p class="helper-text">
+          This scans a selected video frame, not every frame of the
+          entire video.
+        </p>
+
+      </div>
+
+      <div id="filePreviewPanel" class="preview-panel hidden">
+
+        <div class="preview-heading">
           <div>
-            <strong>Naol Studio</strong>
-            <small>Ready to create</small>
+            <h3>Selected document</h3>
+            <p id="fileName">No file selected</p>
           </div>
+
+          <button id="removeFile" class="text-button"
+            type="button">
+            Remove
+          </button>
+        </div>
+
+        <img id="sourceImage" alt="Selected document preview">
+
+        <div id="pdfInfo" class="pdf-info hidden"></div>
+
+        <div class="preview-actions">
+          <button id="convertButton" class="primary-button"
+            type="button">
+            ✨ Convert to Text
+          </button>
+        </div>
+
+      </div>
+
+      <div id="progressPanel" class="progress-panel hidden">
+
+        <div class="progress-heading">
+          <span id="progressMessage">Preparing...</span>
+          <span id="progressPercent">0%</span>
+        </div>
+
+        <div class="progress-track">
+          <div id="progressBar"></div>
+        </div>
+
+        <p id="progressDetail" class="helper-text">
+          Please wait.
+        </p>
+
+      </div>
+
+      <div id="errorBox" class="message-box error-box hidden"
+        role="alert"></div>
+
+      <div id="successBox" class="message-box success-box hidden"
+        role="status"></div>
+
+    </section>
+
+    <section class="editor-section" id="editor">
+
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">CREATIVE STUDIO</span>
+          <h2>Text & handwriting editor</h2>
+          <p>Edit your text and see the result instantly.</p>
         </div>
       </div>
 
-    </aside>
+      <div class="editor-layout">
 
-    <!-- MAIN APPLICATION -->
+        <div class="editor-controls">
 
-    <main class="main-content">
+          <div class="control-card">
 
-      <header class="topbar">
+            <h3>✍️ Your text</h3>
 
-        <button class="mobile-menu" id="menuToggle"
-                aria-label="Open navigation">☰</button>
-
-        <div class="topbar-title">
-          <h1>Writing Studio</h1>
-          <p>Transform your writing into something beautiful.</p>
-        </div>
-
-        <div class="topbar-actions">
-
-          <button class="icon-button" id="themeToggle"
-                  title="Toggle theme">☼</button>
-
-          <div class="user-avatar">N</div>
-
-        </div>
-
-      </header>
-
-      <section class="welcome-card">
-
-        <div class="welcome-content">
-          <div class="eyebrow">✦ YOUR CREATIVE WORKSPACE</div>
-
-          <h2>Every word, <span>beautifully written.</span></h2>
-
-          <p>
-            Scan handwriting, convert text, customize colors,
-            and create your own writing style.
-          </p>
-        </div>
-
-        <div class="welcome-art" aria-hidden="true">
-          <div class="art-paper">
-            <div class="art-line"></div>
-            <div class="art-line"></div>
-            <div class="art-line short"></div>
-            <div class="art-signature">Naol</div>
-          </div>
-
-          <div class="art-orbit"></div>
-        </div>
-
-      </section>
-
-      <!-- QUICK ACTIONS -->
-
-      <section class="quick-actions">
-
-        <button class="quick-card" data-view="convert">
-          <span class="quick-icon purple">✍️</span>
-          <span>
-            <strong>Text to Handwriting</strong>
-            <small>Create handwritten-style text</small>
-          </span>
-          <span class="quick-arrow">↗</span>
-        </button>
-
-        <button class="quick-card" data-view="scan">
-          <span class="quick-icon blue">📷</span>
-          <span>
-            <strong>Image to Text</strong>
-            <small>Extract text using OCR</small>
-          </span>
-          <span class="quick-arrow">↗</span>
-        </button>
-
-        <button class="quick-card" data-view="video">
-          <span class="quick-icon orange">🎬</span>
-          <span>
-            <strong>Video to Text</strong>
-            <small>Scan text in video frames</small>
-          </span>
-          <span class="quick-arrow">↗</span>
-        </button>
-
-      </section>
-
-      <!-- CONVERTER WORKSPACE -->
-
-      <section class="workspace-section" id="converterSection">
-
-        <div class="section-heading">
-          <div>
-            <h2>Text Converter</h2>
-            <p>Write, customize and preview your document.</p>
-          </div>
-
-          <span class="live-badge">
-            <span class="status-dot"></span>
-            Live Preview
-          </span>
-        </div>
-
-        <div class="workspace-grid">
-
-          <!-- LEFT EDITOR -->
-
-          <div class="panel editor-panel">
-
-            <div class="panel-header">
-              <div>
-                <h3>✏️ Your Text</h3>
-                <p>Enter or paste your content below.</p>
-              </div>
-
-              <button class="text-button" id="clearText">Clear</button>
-            </div>
+            <label for="inputText" class="field-label">
+              Enter or edit text
+            </label>
 
             <textarea
-              id="textInput"
-              placeholder="Start writing here...
+              id="inputText"
+              placeholder="Your converted text will appear here. You can also type or paste text..."
+              spellcheck="true"
+            ></textarea>
 
-Your beautiful handwriting starts with a few words."
-              spellcheck="true"></textarea>
+            <div class="editor-buttons">
+              <button id="clearText" class="secondary-button"
+                type="button">
+                Clear
+              </button>
 
-            <div class="text-footer">
-              <span><b id="wordCount">0</b> words</span>
-              <span><b id="charCount">0</b> characters</span>
+              <button id="copyText" class="secondary-button"
+                type="button">
+                Copy text
+              </button>
             </div>
 
-            <div class="divider"></div>
+          </div>
 
-            <h3 class="subheading">Writing Style</h3>
+          <div class="control-card">
 
-            <label class="field-label" for="fontSelect">
-              Handwriting Font
+            <h3>🎨 Text appearance</h3>
+
+            <label class="field-label" for="fontFamily">
+              Font style
             </label>
 
-            <select id="fontSelect">
-              <option value="'Caveat', cursive">Natural Handwriting</option>
-              <option value="'Patrick Hand', cursive">Student Writing</option>
-              <option value="'Pacifico', cursive">Elegant Cursive</option>
-              <option value="'Shadows Into Light', cursive">Casual Writing</option>
-              <option value="Georgia, serif">Classic Serif</option>
-              <option value="Arial, sans-serif">Computer Text</option>
-              <option value="'Inter', sans-serif">Modern Sans</option>
+            <select id="fontFamily" class="form-control">
+              <option value="hand1">Handwriting — Casual</option>
+              <option value="hand2">Handwriting — Elegant</option>
+              <option value="hand3">Handwriting — School</option>
+              <option value="hand4">Handwriting — Creative</option>
+              <option value="Arial, sans-serif">Arial</option>
+              <option value="Georgia, serif">Georgia</option>
+              <option value="'Courier New', monospace">Typewriter</option>
+              <option value="Verdana, sans-serif">Verdana</option>
             </select>
 
-            <div class="field-grid">
+            <div class="two-columns">
 
-              <div class="field">
-                <label class="field-label" for="fontSize">Font Size</label>
-
-                <div class="range-row">
-                  <input type="range" id="fontSize"
-                         min="12" max="48" value="24">
-
-                  <output id="fontSizeValue">24px</output>
-                </div>
-              </div>
-
-              <div class="field">
-                <label class="field-label" for="lineSpacing">
-                  Line Spacing
-                </label>
-
-                <div class="range-row">
-                  <input type="range" id="lineSpacing"
-                         min="1" max="3" step="0.1" value="1.7">
-
-                  <output id="lineSpacingValue">1.7</output>
-                </div>
-              </div>
-
-            </div>
-
-            <div class="field-grid">
-
-              <div class="field">
-                <label class="field-label" for="inkColor">Ink Color</label>
-
-                <div class="color-field">
-                  <input type="color" id="inkColor" value="#172554">
-                  <span id="inkColorValue">#172554</span>
-                </div>
-              </div>
-
-              <div class="field">
-                <label class="field-label" for="paperColor">
-                  Paper Color
-                </label>
-
-                <div class="color-field">
-                  <input type="color" id="paperColor" value="#ffffff">
-                  <span id="paperColorValue">#FFFFFF</span>
-                </div>
-              </div>
-
-            </div>
-
-            <div class="field-grid">
-
-              <div class="field">
-                <label class="field-label" for="paperStyle">
-                  Paper Style
-                </label>
-
-                <select id="paperStyle">
-                  <option value="plain">Plain Paper</option>
-                  <option value="lined">Lined Paper</option>
-                  <option value="grid">Grid Paper</option>
-                  <option value="margin">Notebook Margin</option>
-                </select>
-              </div>
-
-              <div class="field">
-                <label class="field-label" for="textAlign">
-                  Alignment
-                </label>
-
-                <select id="textAlign">
-                  <option value="left">Left</option>
-                  <option value="center">Center</option>
-                  <option value="right">Right</option>
-                  <option value="justify">Justify</option>
-                </select>
-              </div>
-
-            </div>
-
-            <div class="field-grid">
-
-              <div class="field">
-                <label class="field-label" for="letterSpacing">
-                  Letter Spacing
-                </label>
-
-                <div class="range-row">
-                  <input type="range" id="letterSpacing"
-                         min="-1" max="5" step="0.5" value="0">
-
-                  <output id="letterSpacingValue">0px</output>
-                </div>
-              </div>
-
-              <div class="field">
-                <label class="field-label" for="textWeight">
-                  Text Weight
-                </label>
-
-                <select id="textWeight">
-                  <option value="400">Regular</option>
-                  <option value="500">Medium</option>
-                  <option value="600">Semi Bold</option>
-                  <option value="700">Bold</option>
-                </select>
-              </div>
-
-            </div>
-
-            <div class="field">
-              <label class="field-label" for="pageSize">
-                Page Size
-              </label>
-
-              <select id="pageSize">
-                <option value="a4">A4</option>
-                <option value="a5">A5</option>
-                <option value="letter">Letter</option>
-              </select>
-            </div>
-
-            <div class="toggle-row">
               <div>
-                <strong>Show Watermark</strong>
-                <small>Display Naol Converter branding</small>
+                <label for="fontSize" class="field-label">
+                  Font size
+                </label>
+
+                <input id="fontSize" type="range"
+                  min="12" max="64" value="28">
+
+                <span id="fontSizeValue" class="value-label">
+                  28 px
+                </span>
               </div>
 
-              <label class="switch">
-                <input type="checkbox" id="watermarkToggle" checked>
-                <span class="slider"></span>
-              </label>
-            </div>
-
-            <div class="toggle-row">
               <div>
-                <strong>Text Shadow</strong>
-                <small>Add a subtle writing effect</small>
+                <label for="lineSpacing" class="field-label">
+                  Line spacing
+                </label>
+
+                <input id="lineSpacing" type="range"
+                  min="1" max="2.5" step="0.1" value="1.5">
+
+                <span id="lineSpacingValue" class="value-label">
+                  1.5
+                </span>
               </div>
 
-              <label class="switch">
-                <input type="checkbox" id="shadowToggle">
-                <span class="slider"></span>
-              </label>
             </div>
 
-            <button class="primary-button full-width" id="downloadPNG">
-              ⬇ Download PNG
-            </button>
+            <div class="two-columns">
 
-            <div class="button-grid">
-              <button class="secondary-button" id="downloadJPG">
-                Download JPG
-              </button>
-
-              <button class="secondary-button" id="downloadPDF">
-                Download PDF
-              </button>
-            </div>
-
-            <button class="secondary-button full-width" id="downloadTXT">
-              Download Text File
-            </button>
-
-          </div>
-
-          <!-- RIGHT PREVIEW -->
-
-          <div class="panel preview-panel">
-
-            <div class="panel-header preview-header">
               <div>
-                <h3>👁️ Live Preview</h3>
-                <p>Your document updates automatically.</p>
+                <label for="textColor" class="field-label">
+                  Text color
+                </label>
+
+                <input id="textColor" type="color" value="#172554">
               </div>
 
-              <span class="preview-status">PREVIEW</span>
-            </div>
+              <div>
+                <label for="paperColor" class="field-label">
+                  Paper color
+                </label>
 
-            <div class="preview-stage">
-
-              <div class="paper" id="paperPreview">
-
-                <div class="paper-content" id="paperContent">
-                  Your handwritten text will appear here.
-                </div>
-
-                <div class="watermark" id="watermark">
-                  Naol Converter
-                </div>
-
+                <input id="paperColor" type="color" value="#ffffff">
               </div>
 
             </div>
 
-            <div class="preview-footer">
-              <span>✨ Designed with Naol Converter</span>
-              <span id="pageSizeLabel">A4 Document</span>
-            </div>
-
-            <div class="notice">
-              <strong>ⓘ Preview Information</strong>
-
-              <p>
-                Handwriting appearance depends on the selected font.
-                A font imitates handwriting; it does not reproduce the
-                exact natural strokes of a real person's writing.
-              </p>
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      <!-- IMAGE SCANNER -->
-
-      <section class="workspace-section hidden" id="scanSection">
-
-        <div class="section-heading">
-          <div>
-            <h2>Image & Camera Scanner</h2>
-            <p>Upload a picture or capture a document.</p>
-          </div>
-        </div>
-
-        <div class="panel scanner-panel">
-
-          <div class="upload-zone" id="imageDropZone">
-
-            <div class="upload-icon">📸</div>
-
-            <h3>Upload or Capture an Image</h3>
-
-            <p>
-              Select a photograph of handwriting or printed text.
-            </p>
-
-            <div class="upload-actions">
-
-              <label class="primary-button upload-button">
-                🖼️ Upload Image
-
-                <input type="file" id="imageUpload"
-                       accept="image/*" hidden>
-              </label>
-
-              <button class="secondary-button" id="openCamera">
-                📷 Open Camera
-              </button>
-
-            </div>
-
-            <p class="small-note">
-              Supported: JPEG, PNG, WebP and other browser-readable images.
-            </p>
-
-          </div>
-
-          <div class="camera-container hidden" id="cameraContainer">
-
-            <video id="cameraVideo" autoplay playsinline></video>
-
-            <div class="button-grid">
-              <button class="primary-button" id="capturePhoto">
-                📸 Capture Photo
-              </button>
-
-              <button class="secondary-button" id="closeCamera">
-                Close Camera
-              </button>
-            </div>
-
-            <canvas id="cameraCanvas" hidden></canvas>
-
-          </div>
-
-          <div class="image-preview-container hidden" id="imagePreviewContainer">
-
-            <h3>Selected Image</h3>
-
-            <img id="uploadedImagePreview" alt="Uploaded document preview">
-
-            <div class="button-grid">
-              <button class="primary-button" id="extractImageText">
-                ✨ Extract Text
-              </button>
-
-              <button class="secondary-button" id="removeImage">
-                Remove Image
-              </button>
-            </div>
-
-          </div>
-
-          <div class="progress-container hidden" id="ocrProgressContainer">
-
-            <div class="progress-label">
-              <span id="ocrStatus">Preparing OCR...</span>
-              <span id="ocrPercent">0%</span>
-            </div>
-
-            <progress id="ocrProgress" max="100" value="0"></progress>
-
-          </div>
-
-          <div class="field hidden" id="ocrResultContainer">
-
-            <label class="field-label" for="ocrResult">
-              Extracted Text — Edit Below
+            <label for="paperStyle" class="field-label">
+              Paper style
             </label>
 
-            <textarea id="ocrResult"
-                      placeholder="Extracted text appears here..."></textarea>
+            <select id="paperStyle" class="form-control">
+              <option value="plain">Plain paper</option>
+              <option value="lined">Lined paper</option>
+              <option value="grid">Grid paper</option>
+              <option value="dots">Dot paper</option>
+            </select>
 
-            <div class="button-grid">
-              <button class="primary-button" id="useOCRText">
-                Use in Writing Studio
-              </button>
-
-              <button class="secondary-button" id="copyOCRText">
-                Copy Text
-              </button>
-            </div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      <!-- VIDEO SCANNER -->
-
-      <section class="workspace-section hidden" id="videoSection">
-
-        <div class="section-heading">
-          <div>
-            <h2>Video Text Scanner</h2>
-            <p>Extract visible text from selected video frames.</p>
-          </div>
-        </div>
-
-        <div class="panel scanner-panel">
-
-          <div class="upload-zone">
-
-            <div class="upload-icon">🎬</div>
-
-            <h3>Upload a Video</h3>
-
-            <p>
-              Select a video, preview its frames, and scan visible text.
-            </p>
-
-            <label class="primary-button upload-button">
-              🎥 Choose Video
-
-              <input type="file" id="videoUpload"
-                     accept="video/*" hidden>
+            <label for="textAlign" class="field-label">
+              Alignment
             </label>
 
-            <p class="small-note">
-              Processing time depends on video duration and file size.
-            </p>
+            <select id="textAlign" class="form-control">
+              <option value="left">Left</option>
+              <option value="center">Center</option>
+              <option value="right">Right</option>
+              <option value="justify">Justify</option>
+            </select>
 
-          </div>
+            <div class="toggle-grid">
 
-          <div class="video-container hidden" id="videoContainer">
-
-            <video id="videoPlayer" controls playsinline></video>
-
-            <div class="field">
-              <label class="field-label" for="frameInterval">
-                Frame Scan Interval
+              <label class="toggle-option">
+                <input type="checkbox" id="boldText">
+                <span><b>B</b> Bold</span>
               </label>
 
-              <select id="frameInterval">
-                <option value="2">Every 2 seconds</option>
-                <option value="5" selected>Every 5 seconds</option>
-                <option value="10">Every 10 seconds</option>
-                <option value="15">Every 15 seconds</option>
-              </select>
+              <label class="toggle-option">
+                <input type="checkbox" id="italicText">
+                <span><i>I</i> Italic</span>
+              </label>
+
+              <label class="toggle-option">
+                <input type="checkbox" id="underlineText">
+                <span><u>U</u> Underline</span>
+              </label>
+
+              <label class="toggle-option">
+                <input type="checkbox" id="shadowText">
+                <span>Shadow</span>
+              </label>
+
             </div>
 
-            <button class="primary-button full-width" id="scanVideo">
-              🔍 Scan Video Frames
-            </button>
-
-            <canvas id="videoCanvas" hidden></canvas>
-
-          </div>
-
-          <div class="progress-container hidden" id="videoProgressContainer">
-
-            <div class="progress-label">
-              <span id="videoStatus">Preparing video...</span>
-              <span id="videoPercent">0%</span>
-            </div>
-
-            <progress id="videoProgress" max="100" value="0"></progress>
-
-          </div>
-
-          <div class="field hidden" id="videoResultContainer">
-
-            <label class="field-label" for="videoResult">
-              Text Extracted from Video
+            <label for="textOutline" class="field-label">
+              Text outline
             </label>
 
-            <textarea id="videoResult"
-                      placeholder="Video text will appear here..."></textarea>
+            <select id="textOutline" class="form-control">
+              <option value="none">None</option>
+              <option value="1px">Light outline</option>
+              <option value="2px">Strong outline</option>
+            </select>
 
-            <button class="primary-button full-width" id="useVideoText">
-              Use in Writing Studio
-            </button>
+            <label for="textOutlineColor" class="field-label">
+              Outline color
+            </label>
+
+            <input id="textOutlineColor" type="color"
+              value="#ffffff">
+
+          </div>
+
+          <div class="control-card">
+
+            <h3>💬 Caption designer</h3>
+
+            <label for="captionText" class="field-label">
+              Caption
+            </label>
+
+            <input id="captionText" class="form-control"
+              type="text" placeholder="Write your caption...">
+
+            <label for="captionStyle" class="field-label">
+              Caption template
+            </label>
+
+            <select id="captionStyle" class="form-control">
+              <option value="modern">Modern</option>
+              <option value="gradient">Gradient</option>
+              <option value="classic">Classic</option>
+              <option value="outline">Outline</option>
+              <option value="badge">Badge</option>
+              <option value="minimal">Minimal</option>
+            </select>
+
+            <div class="two-columns">
+
+              <div>
+                <label for="captionColor" class="field-label">
+                  Caption color
+                </label>
+
+                <input id="captionColor" type="color"
+                  value="#ffffff">
+              </div>
+
+              <div>
+                <label for="captionBg" class="field-label">
+                  Caption background
+                </label>
+
+                <input id="captionBg" type="color"
+                  value="#5145cd">
+              </div>
+
+            </div>
+
+            <label for="captionPosition" class="field-label">
+              Caption position
+            </label>
+
+            <select id="captionPosition" class="form-control">
+              <option value="top">Top</option>
+              <option value="middle">Middle</option>
+              <option value="bottom">Bottom</option>
+            </select>
+
+            <label for="captionSize" class="field-label">
+              Caption size
+            </label>
+
+            <input id="captionSize" type="range"
+              min="12" max="40" value="20">
+
+            <label class="toggle-option">
+              <input type="checkbox" id="showCaption" checked>
+              <span>Show caption in download</span>
+            </label>
 
           </div>
 
         </div>
 
-      </section>
+        <div class="preview-column">
 
-      <!-- WRITING EDITOR -->
+          <div class="preview-toolbar">
+            <div>
+              <span class="eyebrow">LIVE PREVIEW</span>
+              <h3>Your design</h3>
+            </div>
 
-      <section class="workspace-section hidden" id="editorSection">
-
-        <div class="section-heading">
-          <div>
-            <h2>Advanced Writing Editor</h2>
-            <p>Customize your document with the controls in the studio.</p>
-          </div>
-        </div>
-
-        <div class="panel">
-
-          <div class="editor-shortcuts">
-
-            <button class="secondary-button" id="editorBold">
-              <strong>B</strong> Bold
-            </button>
-
-            <button class="secondary-button" id="editorItalic">
-              <i>I</i> Italic
-            </button>
-
-            <button class="secondary-button" id="editorUnderline">
-              <u>U</u> Underline
-            </button>
-
-            <button class="secondary-button" id="editorReset">
-              ↺ Reset Styles
-            </button>
-
+            <span class="live-badge">● LIVE</span>
           </div>
 
-          <div class="notice">
-            <strong>How to edit</strong>
+          <div id="designCanvas" class="design-canvas">
 
+            <div id="captionPreview" class="caption-preview">
+              Your beautiful caption ✨
+            </div>
+
+            <div id="paperPreview" class="paper-preview">
+
+              <div id="renderedText" class="rendered-text">
+                Your text will appear here.
+
+                Start by typing in the editor or upload a document
+                to extract its text.
+              </div>
+
+            </div>
+
+            <div class="watermark">
+              <span>Naol Converter</span>
+            </div>
+
+          </div>
+
+          <div class="preview-notice">
+            <span>🔒</span>
             <p>
-              Choose fonts, colors, paper style, spacing and watermark
-              in the Text Converter section. All changes appear in
-              the live preview.
+              Your export includes Naol Converter branding.
+              Handwriting appearance depends on the selected font.
             </p>
           </div>
 
-          <button class="primary-button" data-view="convert">
-            Open Text Converter
-          </button>
+          <div id="download" class="download-card">
+
+            <h3>📥 Download your work</h3>
+
+            <p>Choose your preferred format.</p>
+
+            <button id="downloadPng" class="download-button"
+              type="button">
+              🖼️ Download PNG
+            </button>
+
+            <button id="downloadPdf" class="download-button"
+              type="button">
+              📄 Download PDF
+            </button>
+
+            <button id="downloadTxt" class="download-button"
+              type="button">
+              📝 Download TXT
+            </button>
+
+            <p id="downloadStatus" class="helper-text"></p>
+
+          </div>
 
         </div>
 
-      </section>
+      </div>
 
-      <!-- FOOTER -->
+    </section>
 
-      <footer class="app-footer">
-        <div class="footer-brand">
-          <span class="footer-logo">N</span>
-          <span>Naol Converter</span>
+    <section class="features-section">
+
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">MADE FOR CREATIVITY</span>
+          <h2>One workspace. Many possibilities.</h2>
         </div>
+      </div>
 
-        <p>
-          Create beautifully. Convert intelligently.
-        </p>
+      <div class="feature-grid">
 
-        <span class="footer-copy">
-          © <span id="currentYear"></span> Naol Converter
-        </span>
-      </footer>
+        <article class="feature-card">
+          <span>⚡</span>
+          <h3>Fast processing</h3>
+          <p>
+            Start text recognition in your browser with visible progress.
+          </p>
+        </article>
 
-    </main>
+        <article class="feature-card">
+          <span>🎨</span>
+          <h3>Creative styling</h3>
+          <p>
+            Customize typography, paper, colors, spacing and captions.
+          </p>
+        </article>
 
-  </div>
+        <article class="feature-card">
+          <span>📥</span>
+          <h3>Easy downloads</h3>
+          <p>
+            Export your work as an image, PDF or plain text.
+          </p>
+        </article>
 
-  <!-- GLOBAL NOTIFICATION -->
+      </div>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <a href="#" class="footer-brand">Naol Converter</a>
+
+    <p>
+      Smart text conversion and creative editing.
+    </p>
+
+    <small>© <span id="currentYear"></span> Naol Converter</small>
+  </footer>
 
 </body>
 </html>
