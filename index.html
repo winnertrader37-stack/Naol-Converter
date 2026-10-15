@@ -1,745 +1,498 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Naol Converter | Smart Writing Studio</title>
+  <meta name="theme-color" content="#090d1c">
+  <meta name="description" content="Naol Converter - Convert image text to editable text and transform typed text into handwriting-style documents.">
 
-    <meta name="description"
-          content="Convert handwriting images to computer text and transform typed text into handwriting styles.">
+  <title>Naol Converter | Smart Text Studio</title>
 
-    <meta name="theme-color" content="#0b1020">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <link rel="stylesheet" href="./style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Caveat:wght@400;500;600;700&family=Patrick+Hand&family=Kalam:wght@300;400;700&family=Shadows+Into+Light&display=swap" rel="stylesheet">
 
-    <!-- OCR engine -->
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <link rel="stylesheet" href="style.css">
 
-    <!-- PDF reader -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
-    <!-- Export tools -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script defer src="script.js"></script>
 </head>
 
 <body>
+  <div class="background-glow glow-one"></div>
+  <div class="background-glow glow-two"></div>
 
-<div class="app">
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Naol Converter Home">
+      <div class="brand-icon">N</div>
+      <div class="brand-copy">
+        <strong>NAOL<span> CONVERTER</span></strong>
+        <small>SMART TEXT STUDIO</small>
+      </div>
+    </a>
 
-    <!-- HEADER -->
-    <header class="header">
+    <div class="topbar-right">
+      <span class="status-indicator">
+        <span class="status-dot"></span>
+        <span>Studio Ready</span>
+      </span>
+      <button class="topbar-button" id="themeToggle" type="button" title="Toggle appearance">
+        ◐
+      </button>
+    </div>
+  </header>
 
-        <a href="#" class="brand" aria-label="Naol Converter Home">
-            <span class="brand-icon">N</span>
+  <main class="app-container">
+    <section class="hero">
+      <div class="hero-badge">
+        <span>✦</span>
+        ALL-IN-ONE TEXT TOOLKIT
+      </div>
 
-            <span class="brand-text">
-                <strong>Naol Converter</strong>
-                <small>SMART WRITING STUDIO</small>
-            </span>
-        </a>
+      <h1>Make your text<br><span class="gradient-text">work smarter.</span></h1>
 
-        <span class="header-status">
-            <span class="online-dot"></span>
-            Writing Studio
-        </span>
+      <p class="hero-description">
+        Extract text from photos and documents, or turn your typed words
+        into beautiful handwriting-style pages.
+      </p>
 
-    </header>
+      <div class="hero-features">
+        <span>⚡ Fast workflow</span>
+        <span>✍️ Handwriting studio</span>
+        <span>🔒 Local processing where supported</span>
+      </div>
+    </section>
 
+    <section class="workspace">
+      <aside class="sidebar">
+        <div class="sidebar-heading">WORKSPACE</div>
 
-    <!-- HERO -->
-    <main>
+        <button class="nav-item active" data-view="extractView" type="button">
+          <span class="nav-icon">▤</span>
+          <span>
+            <strong>Image to Text</strong>
+            <small>Extract editable text</small>
+          </span>
+          <span class="nav-arrow">›</span>
+        </button>
 
-        <section class="hero">
+        <button class="nav-item" data-view="handwritingView" type="button">
+          <span class="nav-icon">✍</span>
+          <span>
+            <strong>Text to Handwriting</strong>
+            <small>Create handwritten pages</small>
+          </span>
+          <span class="nav-arrow">›</span>
+        </button>
 
-            <span class="hero-label">WELCOME TO NAOL STUDIO</span>
+        <div class="sidebar-divider"></div>
 
-            <h1>
-                Your writing.<br>
-                <span>Transformed.</span>
-            </h1>
+        <div class="sidebar-heading">QUICK TOOLS</div>
 
-            <p>
-                Convert handwritten notes into editable text,
-                or transform your typed words into beautiful handwriting.
-            </p>
+        <button class="quick-tool" id="quickClear" type="button">
+          <span>⌫</span> Clear workspace
+        </button>
 
-        </section>
+        <button class="quick-tool" id="quickCopy" type="button">
+          <span>▣</span> Copy result
+        </button>
 
+        <button class="quick-tool" id="quickDownload" type="button">
+          <span>⇩</span> Download result
+        </button>
 
-        <!-- TWO MAIN OPTIONS -->
-        <section class="mode-grid" aria-label="Choose conversion mode">
-
-            <!-- OPTION 1 -->
-            <button
-                type="button"
-                class="mode-card"
-                id="handwritingModeBtn"
-                data-mode="ocr"
-            >
-
-                <span class="mode-number">01</span>
-
-                <span class="mode-icon">▧</span>
-
-                <span class="mode-title">
-                    Handwriting to Computer
-                </span>
-
-                <span class="mode-description">
-                    Upload a photo or PDF of handwritten notes
-                    and extract editable text.
-                </span>
-
-                <span class="mode-action">
-                    Convert handwriting <span>→</span>
-                </span>
-
-            </button>
-
-
-            <!-- OPTION 2 -->
-            <button
-                type="button"
-                class="mode-card"
-                id="computerModeBtn"
-                data-mode="writing"
-            >
-
-                <span class="mode-number">02</span>
-
-                <span class="mode-icon">✍</span>
-
-                <span class="mode-title">
-                    Computer to Handwriting
-                </span>
-
-                <span class="mode-description">
-                    Type or paste your text and transform it
-                    into a handwriting-style design.
-                </span>
-
-                <span class="mode-action">
-                    Create handwriting <span>→</span>
-                </span>
-
-            </button>
-
-        </section>
-
-
-        <!-- GLOBAL STATUS -->
-        <div
-            id="globalStatus"
-            class="global-status"
-            role="status"
-            aria-live="polite"
-        >
-            <span class="status-dot"></span>
-            <span id="globalStatusText">
-                Choose one of the two options above to begin.
-            </span>
+        <div class="sidebar-note">
+          <div class="note-icon">✦</div>
+          <strong>Your creative workspace</strong>
+          <p>Convert, edit, customize and export your text in one place.</p>
         </div>
+      </aside>
 
+      <section class="main-panel">
 
-        <!-- ===================================== -->
-        <!-- MODE 1: HANDWRITING TO COMPUTER TEXT -->
-        <!-- ===================================== -->
+        <!-- IMAGE TO TEXT VIEW -->
+        <section class="tool-view active" id="extractView">
+          <div class="panel-heading">
+            <div>
+              <div class="eyebrow">TEXT EXTRACTION</div>
+              <h2>Image to Text</h2>
+              <p>Extract text from images or PDF documents.</p>
+            </div>
+            <div class="heading-icon purple-icon">▤</div>
+          </div>
 
-        <section
-            id="ocrWorkspace"
-            class="workspace"
-            hidden
-        >
+          <div class="step-row">
+            <div class="step active-step">
+              <span>01</span>
+              <div>
+                <strong>Upload</strong>
+                <small>Select a file</small>
+              </div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+              <span>02</span>
+              <div>
+                <strong>Extract</strong>
+                <small>Recognize text</small>
+              </div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+              <span>03</span>
+              <div>
+                <strong>Export</strong>
+                <small>Save your result</small>
+              </div>
+            </div>
+          </div>
 
-            <div class="workspace-heading">
+          <div class="upload-grid">
+            <label class="upload-card" for="imageInput">
+              <span class="upload-card-icon">▧</span>
+              <strong>Upload Image</strong>
+              <small>JPG, PNG, WEBP, BMP</small>
+              <span class="upload-card-action">Choose Image ↗</span>
+            </label>
 
+            <label class="upload-card" for="cameraInput">
+              <span class="upload-card-icon">◎</span>
+              <strong>Take a Photo</strong>
+              <small>Use your phone camera</small>
+              <span class="upload-card-action">Open Camera ↗</span>
+            </label>
+
+            <label class="upload-card" for="pdfInput">
+              <span class="upload-card-icon">▤</span>
+              <strong>Upload PDF</strong>
+              <small>Text PDFs and scanned PDFs</small>
+              <span class="upload-card-action">Choose PDF ↗</span>
+            </label>
+          </div>
+
+          <input type="file" id="imageInput" accept="image/*" hidden>
+          <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+          <input type="file" id="pdfInput" accept="application/pdf,.pdf" hidden>
+
+          <div class="editor-grid">
+            <div class="editor-card">
+              <div class="card-title-row">
                 <div>
-                    <span class="section-kicker">MODE 01</span>
-
-                    <h2>Handwriting to Computer</h2>
-
-                    <p>
-                        Select an image or PDF, then start text recognition.
-                    </p>
+                  <h3>Source Preview</h3>
+                  <p>Preview and adjust your image.</p>
                 </div>
+                <span class="mini-tag" id="sourceStatus">No file</span>
+              </div>
 
-                <button
-                    type="button"
-                    class="back-button"
-                    id="backFromOcrBtn"
-                >
-                    ← Back
-                </button>
-
-            </div>
-
-
-            <!-- INPUT METHOD TABS -->
-            <div class="input-tabs">
-
-                <button
-                    type="button"
-                    class="input-tab active"
-                    id="imageTabBtn"
-                >
-                    🖼️ Image
-                </button>
-
-                <button
-                    type="button"
-                    class="input-tab"
-                    id="pdfTabBtn"
-                >
-                    📄 PDF
-                </button>
-
-                <button
-                    type="button"
-                    class="input-tab"
-                    id="cameraTabBtn"
-                >
-                    📷 Camera
-                </button>
-
-            </div>
-
-
-            <!-- IMAGE PANEL -->
-            <div id="imagePanel" class="input-panel">
-
-                <label for="imageInput" class="drop-zone" id="imageDropZone">
-
-                    <span class="drop-icon">↑</span>
-
-                    <strong>Upload your handwriting image</strong>
-
-                    <span>
-                        Tap here to select a photo from your device.
-                    </span>
-
-                    <span class="supported-formats">
-                        JPG · JPEG · PNG · WEBP · BMP
-                    </span>
-
-                    <span class="select-file-button">
-                        Choose Image
-                    </span>
-
-                </label>
-
-                <input
-                    type="file"
-                    id="imageInput"
-                    accept="image/jpeg,image/png,image/webp,image/bmp,image/*"
-                    hidden
-                >
-
-
-                <div id="imagePreviewCard" class="preview-card" hidden>
-
-                    <div class="preview-heading">
-                        <div>
-                            <h3>Selected Image</h3>
-                            <p>Confirm the image before conversion.</p>
-                        </div>
-
-                        <button
-                            type="button"
-                            id="removeImageBtn"
-                            class="small-button"
-                        >
-                            Remove
-                        </button>
-                    </div>
-
-                    <img
-                        id="sourceImage"
-                        class="source-image"
-                        alt="Uploaded handwriting preview"
-                    >
-
-                    <div class="file-information">
-                        <span id="imageFileName"></span>
-                        <span id="imageDimensions"></span>
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="ocrLanguage">
-                            Recognition language
-                        </label>
-
-                        <select id="ocrLanguage">
-
-                            <option value="eng">English</option>
-
-                            <option value="amh">
-                                Amharic (Ethiopic)
-                            </option>
-
-                        </select>
-
-                        <small>
-                            Recognition quality depends on image clarity
-                            and the selected language.
-                        </small>
-
-                    </div>
-
-
-                    <button
-                        type="button"
-                        id="convertImageBtn"
-                        class="primary-button full-button"
-                    >
-                        ✦ Convert Image to Text
-                    </button>
-
+              <div class="image-preview" id="imagePreview">
+                <div class="empty-preview" id="emptyPreview">
+                  <div class="empty-preview-icon">▧</div>
+                  <strong>Your file will appear here</strong>
+                  <span>Upload a photo or choose a PDF.</span>
                 </div>
+                <img id="sourceImage" alt="Uploaded image preview" hidden>
+              </div>
 
-            </div>
+              <div class="image-tools">
+                <button class="small-button" id="rotateLeft" type="button">↶ Rotate</button>
+                <button class="small-button" id="rotateRight" type="button">↷ Rotate</button>
+                <button class="small-button danger-button" id="removeImage" type="button">Remove</button>
+              </div>
 
+              <div class="field-group">
+                <label for="ocrLanguage">Recognition Language</label>
+                <select id="ocrLanguage">
+                  <option value="eng">English</option>
+                  <option value="amh">Amharic (አማርኛ)</option>
+                </select>
+                <small class="field-help">
+                  Recognition quality depends on image clarity and the selected language model.
+                </small>
+              </div>
 
-            <!-- PDF PANEL -->
-            <div id="pdfPanel" class="input-panel" hidden>
+              <div class="field-group">
+                <label for="imageScale">Image Processing</label>
+                <select id="imageScale">
+                  <option value="1">Original size</option>
+                  <option value="1.5" selected>Enhanced resolution</option>
+                  <option value="2">High resolution</option>
+                </select>
+              </div>
 
-                <label for="pdfInput" class="drop-zone">
+              <button class="primary-button full-button" id="extractButton" type="button">
+                <span>✦</span> Extract Text
+              </button>
 
-                    <span class="drop-icon">PDF</span>
-
-                    <strong>Upload a PDF document</strong>
-
-                    <span>
-                        Select a PDF to extract its readable text.
-                    </span>
-
-                    <span class="select-file-button">
-                        Choose PDF
-                    </span>
-
-                </label>
-
-                <input
-                    type="file"
-                    id="pdfInput"
-                    accept=".pdf,application/pdf"
-                    hidden
-                >
-
-
-                <div id="pdfPreviewCard" class="preview-card" hidden>
-
-                    <div class="preview-heading">
-                        <div>
-                            <h3>PDF Document</h3>
-                            <p id="pdfPageInfo">Reading document information...</p>
-                        </div>
-
-                        <button
-                            type="button"
-                            id="removePdfBtn"
-                            class="small-button"
-                        >
-                            Remove
-                        </button>
-                    </div>
-
-                    <div class="pdf-file-information">
-                        <span class="pdf-symbol">PDF</span>
-
-                        <div>
-                            <strong id="pdfFileName"></strong>
-                            <small id="pdfFileSize"></small>
-                        </div>
-                    </div>
-
-
-                    <div class="form-grid">
-
-                        <div class="form-group">
-                            <label for="pdfStartPage">First page</label>
-
-                            <input
-                                type="number"
-                                id="pdfStartPage"
-                                min="1"
-                                value="1"
-                            >
-                        </div>
-
-                        <div class="form-group">
-                            <label for="pdfEndPage">Last page</label>
-
-                            <input
-                                type="number"
-                                id="pdfEndPage"
-                                min="1"
-                                value="1"
-                            >
-                        </div>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="pdfLanguage">
-                            OCR language for scanned pages
-                        </label>
-
-                        <select id="pdfLanguage">
-                            <option value="eng">English</option>
-                            <option value="amh">Amharic (Ethiopic)</option>
-                        </select>
-
-                    </div>
-
-
-                    <button
-                        type="button"
-                        id="convertPdfBtn"
-                        class="primary-button full-button"
-                    >
-                        ✦ Extract PDF Text
-                    </button>
-
+              <div class="progress-wrap" id="ocrProgressWrap" hidden>
+                <div class="progress-heading">
+                  <span id="ocrStatusText">Preparing...</span>
+                  <strong id="ocrPercent">0%</strong>
                 </div>
-
-            </div>
-
-
-            <!-- CAMERA PANEL -->
-            <div id="cameraPanel" class="input-panel" hidden>
-
-                <div class="camera-instructions">
-                    <span class="camera-large-icon">📷</span>
-
-                    <h3>Scan your handwritten notes</h3>
-
-                    <p>
-                        Open the camera on your phone, take a photo,
-                        and convert it to text.
-                    </p>
-
-                    <label for="cameraInput" class="primary-button camera-button">
-                        Open Phone Camera
-                    </label>
-
-                    <input
-                        type="file"
-                        id="cameraInput"
-                        accept="image/*"
-                        capture="environment"
-                        hidden
-                    >
-
-                </div>
-
-            </div>
-
-
-            <!-- OCR PROGRESS -->
-            <div id="progressContainer" class="progress-card" hidden>
-
-                <div class="progress-top">
-
-                    <span id="progressLabel">
-                        Preparing conversion...
-                    </span>
-
-                    <strong id="progressPercent">0%</strong>
-
-                </div>
-
                 <div class="progress-track">
-                    <div id="progressBar" class="progress-fill"></div>
+                  <div class="progress-fill" id="ocrProgressBar"></div>
                 </div>
-
-                <p id="progressDetails">
-                    Please wait while your document is processed.
-                </p>
-
+              </div>
             </div>
 
-
-            <!-- OCR RESULT -->
-            <div id="resultCard" class="preview-card" hidden>
-
-                <div class="preview-heading">
-
-                    <div>
-                        <h3>Converted Text</h3>
-                        <p>Edit the extracted text if necessary.</p>
-                    </div>
-
-                    <span class="success-label">Result</span>
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="outputText">Your editable text</label>
-
-                    <textarea
-                        id="outputText"
-                        rows="12"
-                        placeholder="Converted text will appear here..."
-                    ></textarea>
-
-                </div>
-
-
-                <div class="result-toolbar">
-
-                    <span id="characterCount">0 characters</span>
-
-                    <div class="button-row">
-
-                        <button
-                            type="button"
-                            id="copyTextBtn"
-                            class="secondary-button"
-                        >
-                            Copy
-                        </button>
-
-                        <button
-                            type="button"
-                            id="downloadTextBtn"
-                            class="primary-button"
-                        >
-                            Download TXT
-                        </button>
-
-                    </div>
-
-                </div>
-
-
-                <button
-                    type="button"
-                    id="sendToHandwritingBtn"
-                    class="secondary-button full-button"
-                >
-                    ✍ Send Text to Handwriting Studio
-                </button>
-
-            </div>
-
-        </section>
-
-
-        <!-- ===================================== -->
-        <!-- MODE 2: COMPUTER TEXT TO HANDWRITING -->
-        <!-- ===================================== -->
-
-        <section
-            id="writingWorkspace"
-            class="workspace"
-            hidden
-        >
-
-            <div class="workspace-heading">
-
+            <div class="editor-card">
+              <div class="card-title-row">
                 <div>
-                    <span class="section-kicker">MODE 02</span>
-
-                    <h2>Computer to Handwriting</h2>
-
-                    <p>
-                        Type your text and customize its appearance.
-                    </p>
+                  <h3>Extracted Text</h3>
+                  <p>Edit the recognized text before saving.</p>
                 </div>
+                <span class="mini-tag" id="wordCount">0 words</span>
+              </div>
 
-                <button
-                    type="button"
-                    class="back-button"
-                    id="backFromWritingBtn"
-                >
-                    ← Back
-                </button>
+              <textarea
+                id="extractedText"
+                class="text-editor"
+                placeholder="Your extracted text will appear here. You can also type or paste text into this area..."
+                spellcheck="true"
+              ></textarea>
 
+              <div class="text-stats">
+                <span id="characterCount">0 characters</span>
+                <span id="lineCount">0 lines</span>
+              </div>
+
+              <div class="button-grid">
+                <button class="secondary-button" id="copyExtracted" type="button">▣ Copy Text</button>
+                <button class="secondary-button" id="downloadTxt" type="button">⇩ Download TXT</button>
+                <button class="secondary-button" id="clearExtracted" type="button">⌫ Clear Text</button>
+                <button class="secondary-button" id="sendToHandwriting" type="button">✍ Handwriting Studio</button>
+              </div>
+
+              <div class="info-box">
+                <span>ⓘ</span>
+                <p>OCR can make mistakes, especially with handwriting, blurry images, and unusual fonts. Review the result before using it.</p>
+              </div>
             </div>
-
-
-            <div class="preview-card">
-
-                <div class="form-group">
-
-                    <label for="handwritingInput">
-                        Enter or paste your text
-                    </label>
-
-                    <textarea
-                        id="handwritingInput"
-                        rows="7"
-                        placeholder="Start typing your text here..."
-                    ></textarea>
-
-                </div>
-
-
-                <div class="form-grid">
-
-                    <div class="form-group">
-
-                        <label for="handwritingFont">
-                            Writing style
-                        </label>
-
-                        <select id="handwritingFont">
-
-                            <option value="cursive">
-                                Cursive
-                            </option>
-
-                            <option value="serif">
-                                Classic
-                            </option>
-
-                            <option value="sans-serif">
-                                Modern
-                            </option>
-
-                            <option value="monospace">
-                                Typewriter
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="writingColor">
-                            Ink color
-                        </label>
-
-                        <input
-                            type="color"
-                            id="writingColor"
-                            value="#172554"
-                        >
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="writingSize">
-                            Text size
-                        </label>
-
-                        <select id="writingSize">
-
-                            <option value="18">Small</option>
-
-                            <option value="24" selected>Medium</option>
-
-                            <option value="32">Large</option>
-
-                            <option value="40">Extra Large</option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="paperStyle">
-                            Paper style
-                        </label>
-
-                        <select id="paperStyle">
-
-                            <option value="plain">Plain Paper</option>
-
-                            <option value="lined">Lined Paper</option>
-
-                            <option value="grid">Grid Paper</option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-
-                <div class="preview-heading">
-
-                    <div>
-                        <h3>Live Handwriting Preview</h3>
-                        <p>Your design updates as you type.</p>
-                    </div>
-
-                </div>
-
-
-                <div
-                    id="paperPreview"
-                    class="paper-preview plain-paper"
-                >
-
-                    <div
-                        id="handwritingPreview"
-                        class="handwriting-preview"
-                    >Your handwriting preview will appear here.</div>
-
-                    <div class="watermark">
-                        Naol Converter
-                    </div>
-
-                </div>
-
-
-                <div class="button-row export-row">
-
-                    <button
-                        type="button"
-                        id="downloadHandwritingBtn"
-                        class="primary-button"
-                    >
-                        Download PNG
-                    </button>
-
-                    <button
-                        type="button"
-                        id="downloadHandwritingPdfBtn"
-                        class="secondary-button"
-                    >
-                        Download PDF
-                    </button>
-
-                </div>
-
-            </div>
-
+          </div>
         </section>
 
-    </main>
+        <!-- TEXT TO HANDWRITING VIEW -->
+        <section class="tool-view" id="handwritingView">
+          <div class="panel-heading">
+            <div>
+              <div class="eyebrow">HANDWRITING STUDIO</div>
+              <h2>Text to Handwriting</h2>
+              <p>Design a handwritten-style page with your own settings.</p>
+            </div>
+            <div class="heading-icon cyan-icon">✍</div>
+          </div>
 
+          <div class="handwriting-layout">
+            <div class="settings-column">
+              <div class="settings-card">
+                <div class="settings-title">
+                  <span class="settings-number">01</span>
+                  <div>
+                    <h3>Your Text</h3>
+                    <p>Type or paste your content.</p>
+                  </div>
+                </div>
 
-    <footer class="footer">
+                <textarea id="handwritingText" class="input-textarea" placeholder="Write something beautiful here..."></textarea>
 
-        <strong>Naol Converter</strong>
+                <div class="field-inline">
+                  <button class="small-button" id="pasteText" type="button">Paste Text</button>
+                  <button class="small-button" id="clearHandwriting" type="button">Clear</button>
+                  <span class="inline-counter" id="handwritingWordCount">0 words</span>
+                </div>
+              </div>
 
-        <span>
-            Smart writing tools in one workspace.
-        </span>
+              <div class="settings-card">
+                <div class="settings-title">
+                  <span class="settings-number">02</span>
+                  <div>
+                    <h3>Handwriting Style</h3>
+                    <p>Choose the appearance of your text.</p>
+                  </div>
+                </div>
 
-    </footer>
+                <div class="field-group">
+                  <label for="handwritingFont">Font Style</label>
+                  <select id="handwritingFont">
+                    <option value="'Caveat', cursive">Natural Handwriting</option>
+                    <option value="'Patrick Hand', cursive">Simple Handwriting</option>
+                    <option value="'Kalam', cursive">Notebook Handwriting</option>
+                    <option value="'Shadows Into Light', cursive">Light Handwriting</option>
+                    <option value="serif">Classic Serif</option>
+                    <option value="sans-serif">Clean Sans Serif</option>
+                  </select>
+                </div>
 
-</div>
+                <div class="field-group">
+                  <div class="range-heading">
+                    <label for="fontSize">Font Size</label>
+                    <output id="fontSizeValue">27 px</output>
+                  </div>
+                  <input id="fontSize" type="range" min="16" max="48" value="27">
+                </div>
 
+                <div class="field-group">
+                  <div class="range-heading">
+                    <label for="lineSpacing">Line Spacing</label>
+                    <output id="lineSpacingValue">1.7</output>
+                  </div>
+                  <input id="lineSpacing" type="range" min="1.1" max="2.5" step="0.1" value="1.7">
+                </div>
 
-<!-- Application logic must load after the HTML -->
-<script src="./script.js"></script>
+                <div class="field-group">
+                  <label for="fontWeight">Writing Thickness</label>
+                  <select id="fontWeight">
+                    <option value="400">Normal</option>
+                    <option value="500">Medium</option>
+                    <option value="600">Bold</option>
+                    <option value="700">Extra Bold</option>
+                  </select>
+                </div>
+              </div>
 
+              <div class="settings-card">
+                <div class="settings-title">
+                  <span class="settings-number">03</span>
+                  <div>
+                    <h3>Ink & Paper</h3>
+                    <p>Customize the page appearance.</p>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label for="inkColor">Ink Color</label>
+                  <div class="color-control">
+                    <input type="color" id="inkColor" value="#193b79">
+                    <span id="inkColorLabel">Blue Ink</span>
+                  </div>
+                </div>
+
+                <div class="field-group">
+                  <label for="paperStyle">Paper Style</label>
+                  <select id="paperStyle">
+                    <option value="lined">Lined Notebook</option>
+                    <option value="plain">Plain White</option>
+                    <option value="grid">Grid Paper</option>
+                    <option value="margin">Lined with Margin</option>
+                    <option value="cream">Cream Paper</option>
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label for="paperSize">Page Size</label>
+                  <select id="paperSize">
+                    <option value="a4">A4 Portrait</option>
+                    <option value="letter">Letter Portrait</option>
+                    <option value="a5">A5 Portrait</option>
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label for="textAlign">Text Alignment</label>
+                  <select id="textAlign">
+                    <option value="left">Align Left</option>
+                    <option value="center">Center</option>
+                    <option value="right">Align Right</option>
+                    <option value="justify">Justify</option>
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <label for="pagePadding">Page Margins</label>
+                  <select id="pagePadding">
+                    <option value="28px">Narrow</option>
+                    <option value="42px" selected>Normal</option>
+                    <option value="60px">Wide</option>
+                  </select>
+                </div>
+
+                <label class="toggle-row">
+                  <span>
+                    <strong>Show Watermark</strong>
+                    <small>Display Naol Converter on the page</small>
+                  </span>
+                  <input type="checkbox" id="showWatermark" checked>
+                  <span class="toggle-switch"></span>
+                </label>
+
+                <label class="toggle-row">
+                  <span>
+                    <strong>Show Date</strong>
+                    <small>Add today's date to the page</small>
+                  </span>
+                  <input type="checkbox" id="showDate">
+                  <span class="toggle-switch"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="preview-column">
+              <div class="preview-toolbar">
+                <div>
+                  <span class="preview-live-dot"></span>
+                  <strong>LIVE PREVIEW</strong>
+                </div>
+                <span class="mini-tag" id="pageSizeLabel">A4 PAGE</span>
+              </div>
+
+              <div class="paper-stage">
+                <div id="paperPreview" class="paper-preview paper-lined">
+                  <div class="paper-date" id="paperDate"></div>
+                  <div id="handwritingOutput" class="handwriting-output">Your handwriting preview will appear here...</div>
+                  <div id="watermark" class="watermark">Naol Converter</div>
+                </div>
+              </div>
+
+              <div class="export-card">
+                <div>
+                  <h3>Export Your Page</h3>
+                  <p>Save your customized handwriting design.</p>
+                </div>
+
+                <div class="export-grid">
+                  <button class="export-button export-png" id="exportPng" type="button">
+                    <span>▧</span>
+                    <strong>PNG Image</strong>
+                    <small>High-quality image</small>
+                  </button>
+
+                  <button class="export-button export-jpg" id="exportJpg" type="button">
+                    <span>▧</span>
+                    <strong>JPG Image</strong>
+                    <small>Compressed image</small>
+                  </button>
+
+                  <button class="export-button export-pdf" id="exportPdf" type="button">
+                    <span>▤</span>
+                    <strong>PDF Document</strong>
+                    <small>Printable document</small>
+                  </button>
+
+                  <button class="export-button export-print" id="printPage" type="button">
+                    <span>⎙</span>
+                    <strong>Print Page</strong>
+                    <small>Print or save as PDF</small>
+                  </button>
+                </div>
+
+                <div class="export-status" id="exportStatus" role="status" aria-live="polite"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <footer class="app-footer">
+          <span>© 2026 Naol Converter</span>
+          <span>Built for faster text workflows</span>
+        </footer>
+      </section>
+    </section>
+  </main>
+
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 </body>
 </html>
