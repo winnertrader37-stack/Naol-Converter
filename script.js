@@ -1,906 +1,1047 @@
-:root {
-  --bg: #101426;
-  --surface: #191f35;
-  --surface-2: #202843;
-  --border: rgba(255,255,255,.09);
-  --text: #f5f7ff;
-  --muted: #a6b0cb;
-  --primary: #7966ff;
-  --primary-light: #a69aff;
-  --green: #39d9a2;
-  --danger: #ff6c83;
-  --shadow: 0 20px 60px rgba(0,0,0,.22);
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-  scroll-padding-top: 90px;
-}
-
-body {
-  margin: 0;
-  background:
-    radial-gradient(
-      circle at 15% 0%,
-      rgba(102,78,255,.16),
-      transparent 32%
-    ),
-    var(--bg);
-  color: var(--text);
-  font-family: Arial, Helvetica, sans-serif;
-  line-height: 1.6;
-}
-
-body.light-theme {
-  --bg: #f4f6fc;
-  --surface: #ffffff;
-  --surface-2: #eef1fb;
-  --border: rgba(25,35,70,.12);
-  --text: #18203b;
-  --muted: #65708c;
-  --shadow: 0 20px 60px rgba(30,40,80,.09);
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
-
-button,
-a,
-label {
-  -webkit-tap-highlight-color: transparent;
-}
-
-button {
-  cursor: pointer;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.hidden {
-  display: none !important;
-}
-
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 14px 5%;
-  background: rgba(16,20,38,.91);
-  backdrop-filter: blur(18px);
-  border-bottom: 1px solid var(--border);
-}
-
-.light-theme .topbar {
-  background: rgba(255,255,255,.92);
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.brand-logo {
-  display: grid;
-  place-items: center;
-  width: 45px;
-  height: 45px;
-  border-radius: 14px;
-  background: linear-gradient(135deg,#8c6bff,#5746df);
-  color: white;
-  font-weight: 900;
-  font-size: 25px;
-  box-shadow: 0 8px 25px rgba(115,90,255,.32);
-}
-
-.brand strong,
-.brand small {
-  display: block;
-}
-
-.brand strong {
-  font-size: 16px;
-}
-
-.brand small {
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.top-nav {
-  display: flex;
-  gap: 25px;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.top-nav a:hover {
-  color: var(--primary-light);
-}
-
-.icon-button {
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
-  color: var(--text);
-}
-
-.container {
-  width: min(1160px, 92%);
-  margin: auto;
-}
-
-.hero {
-  padding: 82px 10px 60px;
-  text-align: center;
-}
-
-.hero-badge {
-  display: inline-block;
-  padding: 8px 15px;
-  border: 1px solid rgba(166,154,255,.3);
-  border-radius: 30px;
-  color: var(--primary-light);
-  background: rgba(121,102,255,.09);
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1px;
-}
-
-.hero h1 {
-  margin: 23px 0 16px;
-  font-size: clamp(36px,6vw,67px);
-  line-height: 1.1;
-  letter-spacing: -2px;
-}
-
-.hero h1 span {
-  background: linear-gradient(100deg,#9c8bff,#57d9e8);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-.hero p {
-  max-width: 650px;
-  margin: 0 auto;
-  color: var(--muted);
-  font-size: 16px;
-}
-
-.hero-actions {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin-top: 30px;
-}
-
-.primary-button,
-.secondary-button {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 45px;
-  padding: 12px 19px;
-  border-radius: 12px;
-  border: 1px solid transparent;
-  font-weight: 700;
-  font-size: 13px;
-  transition: transform .2s, opacity .2s;
-}
-
-.primary-button {
-  color: #fff;
-  background: linear-gradient(135deg,#7966ff,#5546dc);
-  box-shadow: 0 9px 25px rgba(104,82,255,.23);
-}
-
-.secondary-button {
-  color: var(--text);
-  background: var(--surface);
-  border-color: var(--border);
-}
-
-.primary-button:hover,
-.secondary-button:hover {
-  transform: translateY(-2px);
-}
-
-.section-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 25px;
-}
-
-.section-heading h2 {
-  margin: 5px 0;
-  font-size: clamp(23px,4vw,32px);
-  letter-spacing: -.6px;
-}
-
-.section-heading p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.eyebrow {
-  font-size: 10px;
-  letter-spacing: 1.8px;
-  color: var(--primary-light);
-  font-weight: 900;
-}
-
-.online-indicator {
-  white-space: nowrap;
-  font-size: 11px;
-  color: var(--green);
-}
-
-.online-indicator span {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  background: var(--green);
-  border-radius: 50%;
-  margin-right: 5px;
-}
-
-.workspace,
-.editor-section,
-.features-section {
-  padding: 35px;
-  margin-bottom: 35px;
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  background: var(--surface);
-  box-shadow: var(--shadow);
-}
-
-.upload-grid {
-  display: grid;
-  grid-template-columns: repeat(4,minmax(0,1fr));
-  gap: 15px;
-}
-
-.upload-card {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  min-height: 180px;
-  padding: 21px;
-  border: 1px dashed rgba(160,150,255,.4);
-  border-radius: 17px;
-  background: var(--surface-2);
-  color: var(--text);
-  transition: border-color .2s, transform .2s;
-  cursor: pointer;
-}
-
-.upload-card:hover {
-  border-color: var(--primary-light);
-  transform: translateY(-3px);
-}
-
-.upload-icon {
-  display: grid;
-  place-items: center;
-  width: 43px;
-  height: 43px;
-  margin-bottom: 14px;
-  border-radius: 13px;
-  background: rgba(121,102,255,.15);
-  font-size: 22px;
-}
-
-.upload-card strong {
-  font-size: 14px;
-}
-
-.upload-card small {
-  margin-top: 6px;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.upload-link {
-  margin-top: auto;
-  padding-top: 12px;
-  color: var(--primary-light);
-  font-size: 11px;
-  font-weight: 800;
-}
-
-.camera-panel,
-.preview-panel,
-.progress-panel {
-  margin-top: 22px;
-  padding: 22px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--surface-2);
-}
-
-.camera-header,
-.preview-heading,
-.progress-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-}
-
-.camera-header h3,
-.preview-heading h3 {
-  margin: 0;
-}
-
-.camera-panel video {
-  display: block;
-  width: 100%;
-  max-height: 450px;
-  margin-top: 18px;
-  background: #05070d;
-  border-radius: 13px;
-}
-
-.camera-actions,
-.preview-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 16px;
-  flex-wrap: wrap;
-}
-
-.helper-text {
-  color: var(--muted);
-  font-size: 11px;
-  overflow-wrap: anywhere;
-}
-
-.preview-heading p {
-  margin: 5px 0 0;
-  font-size: 12px;
-  color: var(--muted);
-  overflow-wrap: anywhere;
-}
-
-.text-button {
-  border: none;
-  background: transparent;
-  color: var(--danger);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-#sourceImage {
-  display: block;
-  width: 100%;
-  max-height: 450px;
-  object-fit: contain;
-  margin-top: 18px;
-  border-radius: 12px;
-  background: #080a12;
-}
-
-.pdf-info {
-  padding: 15px;
-  margin-top: 15px;
-  border-radius: 10px;
-  background: var(--surface);
-  font-size: 12px;
-}
-
-.progress-heading {
-  font-size: 12px;
-  margin-bottom: 10px;
-}
-
-.progress-track {
-  width: 100%;
-  height: 8px;
-  overflow: hidden;
-  border-radius: 20px;
-  background: rgba(130,130,160,.2);
-}
-
-#progressBar {
-  width: 0%;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg,#7966ff,#52d9e8);
-  transition: width .2s;
-}
-
-.message-box {
-  margin-top: 16px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  font-size: 12px;
-  overflow-wrap: anywhere;
-}
-
-.error-box {
-  background: rgba(255,108,131,.1);
-  color: var(--danger);
-  border: 1px solid rgba(255,108,131,.2);
-}
-
-.success-box {
-  background: rgba(57,217,162,.1);
-  color: var(--green);
-  border: 1px solid rgba(57,217,162,.2);
-}
-
-.editor-layout {
-  display: grid;
-  grid-template-columns: minmax(0,.95fr) minmax(0,1.05fr);
-  align-items: start;
-  gap: 24px;
-}
-
-.editor-controls {
-  display: grid;
-  gap: 16px;
-}
-
-.control-card {
-  padding: 21px;
-  border: 1px solid var(--border);
-  border-radius: 17px;
-  background: var(--surface-2);
-}
-
-.control-card h3 {
-  margin: 0 0 18px;
-  font-size: 15px;
-}
-
-.field-label {
-  display: block;
-  margin: 14px 0 7px;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 700;
-}
-
-textarea,
-.form-control,
-.number-input {
-  display: block;
-  width: 100%;
-  min-width: 0;
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  outline: none;
-  background: var(--surface);
-  color: var(--text);
-  font-size: 12px;
-}
-
-textarea {
-  min-height: 180px;
-  resize: vertical;
-  line-height: 1.7;
-}
-
-textarea:focus,
-.form-control:focus,
-.number-input:focus {
-  border-color: var(--primary-light);
-}
-
-input[type="range"] {
-  display: block;
-  width: 100%;
-  accent-color: var(--primary);
-}
-
-input[type="color"] {
-  display: block;
-  width: 100%;
-  height: 43px;
-  padding: 4px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
-  cursor: pointer;
-}
-
-.two-columns {
-  display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: 15px;
-}
-
-.value-label {
-  color: var(--muted);
-  font-size: 10px;
-}
-
-.editor-buttons {
-  display: flex;
-  gap: 9px;
-  margin-top: 12px;
-  flex-wrap: wrap;
-}
-
-.toggle-grid {
-  display: grid;
-  grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: 9px;
-  margin-top: 15px;
-}
-
-.toggle-option {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 38px;
-  padding: 9px;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  color: var(--muted);
-  font-size: 11px;
-  cursor: pointer;
-}
-
-.toggle-option input {
-  accent-color: var(--primary);
-}
-
-.preview-column {
-  position: sticky;
-  top: 90px;
-  min-width: 0;
-}
-
-.preview-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 15px;
-}
-
-.preview-toolbar h3 {
-  margin: 3px 0 0;
-}
-
-.live-badge {
-  color: var(--green);
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.design-canvas {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-height: 470px;
-  padding: 18px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 15px;
-  background: #e9edf6;
-}
-
-.paper-preview {
-  position: relative;
-  flex: 1;
-  min-height: 410px;
-  padding: 35px 25px 60px;
-  overflow-wrap: anywhere;
-  background: #fff;
-  color: #172554;
-  border-radius: 5px;
-  box-shadow: 0 6px 20px rgba(0,0,0,.1);
-}
-
-.paper-preview.paper-lined {
-  background-image:
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 31px,
-      #cdd9f2 32px
+"use strict";
+
+/* =========================================================
+   NAOL CONVERTER
+   Image/PDF to Text + Computer Text to Handwriting
+   ========================================================= */
+
+document.addEventListener("DOMContentLoaded", function () {
+    initNaolConverter();
+});
+
+function initNaolConverter() {
+    const $ = (id) => document.getElementById(id);
+
+    const elements = {
+        handwritingModeBtn: $("handwritingModeBtn"),
+        computerModeBtn: $("computerModeBtn"),
+
+        ocrWorkspace: $("ocrWorkspace"),
+        writingWorkspace: $("writingWorkspace"),
+
+        backFromOcrBtn: $("backFromOcrBtn"),
+        backFromWritingBtn: $("backFromWritingBtn"),
+
+        imageTabBtn: $("imageTabBtn"),
+        pdfTabBtn: $("pdfTabBtn"),
+        cameraTabBtn: $("cameraTabBtn"),
+
+        imagePanel: $("imagePanel"),
+        pdfPanel: $("pdfPanel"),
+        cameraPanel: $("cameraPanel"),
+
+        imageInput: $("imageInput"),
+        cameraInput: $("cameraInput"),
+        pdfInput: $("pdfInput"),
+
+        imagePreviewCard: $("imagePreviewCard"),
+        sourceImage: $("sourceImage"),
+        imageFileName: $("imageFileName"),
+        imageDimensions: $("imageDimensions"),
+        removeImageBtn: $("removeImageBtn"),
+        convertImageBtn: $("convertImageBtn"),
+        ocrLanguage: $("ocrLanguage"),
+
+        pdfPreviewCard: $("pdfPreviewCard"),
+        pdfFileName: $("pdfFileName"),
+        pdfFileSize: $("pdfFileSize"),
+        pdfPageInfo: $("pdfPageInfo"),
+        pdfStartPage: $("pdfStartPage"),
+        pdfEndPage: $("pdfEndPage"),
+        pdfLanguage: $("pdfLanguage"),
+        removePdfBtn: $("removePdfBtn"),
+        convertPdfBtn: $("convertPdfBtn"),
+
+        progressContainer: $("progressContainer"),
+        progressLabel: $("progressLabel"),
+        progressPercent: $("progressPercent"),
+        progressBar: $("progressBar"),
+        progressDetails: $("progressDetails"),
+
+        resultCard: $("resultCard"),
+        outputText: $("outputText"),
+        characterCount: $("characterCount"),
+        copyTextBtn: $("copyTextBtn"),
+        downloadTextBtn: $("downloadTextBtn"),
+        sendToHandwritingBtn: $("sendToHandwritingBtn"),
+
+        handwritingInput: $("handwritingInput"),
+        handwritingFont: $("handwritingFont"),
+        writingColor: $("writingColor"),
+        writingSize: $("writingSize"),
+        paperStyle: $("paperStyle"),
+        paperPreview: $("paperPreview"),
+        handwritingPreview: $("handwritingPreview"),
+        downloadHandwritingBtn: $("downloadHandwritingBtn"),
+        downloadHandwritingPdfBtn: $("downloadHandwritingPdfBtn"),
+
+        globalStatus: $("globalStatus"),
+        globalStatusText: $("globalStatusText"),
+
+        goToConverterBtn: $("goToConverterBtn")
+    };
+
+    const missingElements = Object.entries(elements)
+        .filter(([, element]) => !element)
+        .map(([name]) => name);
+
+    if (missingElements.length > 0) {
+        console.error(
+            "Naol Converter HTML elements are missing:",
+            missingElements
+        );
+
+        alert(
+            "Naol Converter could not start because some HTML elements " +
+            "are missing. Please ensure index.html matches the new version."
+        );
+
+        return;
+    }
+
+    let selectedImageFile = null;
+    let selectedPdfFile = null;
+    let pdfDocument = null;
+    let busy = false;
+    let currentObjectUrl = null;
+
+    /* ---------------------------------------------------------
+       STATUS
+       --------------------------------------------------------- */
+
+    function setStatus(message, type = "info") {
+        elements.globalStatusText.textContent = message;
+
+        elements.globalStatus.dataset.type = type;
+
+        console.log("[Naol Converter]", message);
+    }
+
+    function setBusy(value) {
+        busy = value;
+
+        elements.convertImageBtn.disabled = value;
+        elements.convertPdfBtn.disabled = value;
+
+        elements.convertImageBtn.textContent = value
+            ? "Processing..."
+            : "✦ Convert Image to Text";
+
+        elements.convertPdfBtn.textContent = value
+            ? "Processing..."
+            : "✦ Extract PDF Text";
+    }
+
+    function setProgress(percent, label, details = "") {
+        const safePercent = Math.max(
+            0,
+            Math.min(100, Math.round(percent))
+        );
+
+        elements.progressContainer.hidden = false;
+        elements.progressBar.style.width = safePercent + "%";
+        elements.progressPercent.textContent = safePercent + "%";
+        elements.progressLabel.textContent = label;
+        elements.progressDetails.textContent = details;
+    }
+
+    function hideProgress() {
+        elements.progressContainer.hidden = true;
+        elements.progressBar.style.width = "0%";
+    }
+
+    function showResult(text) {
+        elements.outputText.value = text || "";
+        elements.resultCard.hidden = false;
+        updateCharacterCount();
+
+        elements.resultCard.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+
+    function updateCharacterCount() {
+        const count = elements.outputText.value.length;
+
+        elements.characterCount.textContent =
+            count + (count === 1 ? " character" : " characters");
+    }
+
+    /* ---------------------------------------------------------
+       WORKSPACE NAVIGATION
+       --------------------------------------------------------- */
+
+    function showOcrWorkspace() {
+        elements.ocrWorkspace.hidden = false;
+        elements.writingWorkspace.hidden = true;
+
+        elements.ocrWorkspace.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+        setStatus(
+            "Handwriting to Computer is ready. Choose an image, PDF, or camera.",
+            "success"
+        );
+    }
+
+    function showWritingWorkspace() {
+        elements.ocrWorkspace.hidden = true;
+        elements.writingWorkspace.hidden = false;
+
+        updateHandwritingPreview();
+
+        elements.writingWorkspace.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+        setStatus(
+            "Computer to Handwriting is ready. Enter your text below.",
+            "success"
+        );
+    }
+
+    function showHome() {
+        elements.ocrWorkspace.hidden = true;
+        elements.writingWorkspace.hidden = true;
+
+        setStatus(
+            "Choose Handwriting to Computer or Computer to Handwriting."
+        );
+
+        window.scrollTo({
+            top: 0,
+            behavior: "smooth"
+        });
+    }
+
+    elements.handwritingModeBtn.addEventListener(
+        "click",
+        showOcrWorkspace
     );
-}
 
-.paper-preview.paper-grid {
-  background-image:
-    linear-gradient(#dce3f1 1px,transparent 1px),
-    linear-gradient(90deg,#dce3f1 1px,transparent 1px);
-  background-size: 25px 25px;
-}
+    elements.computerModeBtn.addEventListener(
+        "click",
+        showWritingWorkspace
+    );
 
-.paper-preview.paper-dots {
-  background-image: radial-gradient(#c5cfe2 1px,transparent 1px);
-  background-size: 18px 18px;
-}
+    elements.backFromOcrBtn.addEventListener("click", showHome);
+    elements.backFromWritingBtn.addEventListener("click", showHome);
 
-.rendered-text {
-  min-height: 300px;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  font-family: cursive;
-  font-size: 28px;
-  line-height: 1.5;
-  color: #172554;
-}
+    if (elements.goToConverterBtn) {
+        elements.goToConverterBtn.addEventListener(
+            "click",
+            showOcrWorkspace
+        );
+    }
 
-.caption-preview {
-  display: block;
-  position: relative;
-  z-index: 2;
-  align-self: center;
-  max-width: 100%;
-  margin-bottom: 12px;
-  padding: 10px 16px;
-  border-radius: 12px;
-  background: #5145cd;
-  color: #fff;
-  text-align: center;
-  font-size: 20px;
-  font-weight: 800;
-  overflow-wrap: anywhere;
-}
+    /* ---------------------------------------------------------
+       INPUT TABS
+       --------------------------------------------------------- */
 
-.caption-preview.caption-gradient {
-  background: linear-gradient(110deg,#5145cd,#e54e9b);
-}
+    function activateInputTab(tabName) {
+        const tabs = [
+            ["image", elements.imageTabBtn, elements.imagePanel],
+            ["pdf", elements.pdfTabBtn, elements.pdfPanel],
+            ["camera", elements.cameraTabBtn, elements.cameraPanel]
+        ];
 
-.caption-preview.caption-classic {
-  border-radius: 0;
-  border-bottom: 3px solid #fff;
-}
+        tabs.forEach(([name, button, panel]) => {
+            const active = name === tabName;
 
-.caption-preview.caption-outline {
-  background: transparent;
-  color: #5145cd;
-  border: 2px solid #5145cd;
-}
+            button.classList.toggle("active", active);
+            panel.hidden = !active;
+        });
 
-.caption-preview.caption-badge {
-  border-radius: 40px;
-}
+        setStatus(
+            tabName === "image"
+                ? "Choose an image from your device."
+                : tabName === "pdf"
+                    ? "Choose a PDF document."
+                    : "Use your phone camera to take a document photo."
+        );
+    }
 
-.caption-preview.caption-minimal {
-  background: transparent;
-  color: #172554;
-  border-bottom: 1px solid currentColor;
-  border-radius: 0;
-}
+    elements.imageTabBtn.addEventListener(
+        "click",
+        () => activateInputTab("image")
+    );
 
-.caption-top {
-  order: -1;
-}
+    elements.pdfTabBtn.addEventListener(
+        "click",
+        () => activateInputTab("pdf")
+    );
 
-.caption-middle {
-  align-self: center;
-  margin-top: auto;
-  margin-bottom: auto;
-}
+    elements.cameraTabBtn.addEventListener(
+        "click",
+        () => activateInputTab("camera")
+    );
 
-.caption-bottom {
-  order: 3;
-  margin-top: 12px;
-  margin-bottom: 0;
-}
+    /* ---------------------------------------------------------
+       IMAGE UPLOAD
+       --------------------------------------------------------- */
 
-.watermark {
-  position: absolute;
-  right: 24px;
-  bottom: 22px;
-  z-index: 3;
-  color: rgba(40,48,76,.6);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .5px;
-  pointer-events: none;
-}
+    function isImageFile(file) {
+        if (!file) return false;
 
-.preview-notice {
-  display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  margin: 12px 0 20px;
-  padding: 12px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface-2);
-}
+        return (
+            file.type.startsWith("image/") ||
+            /\.(jpg|jpeg|png|webp|bmp|gif|tif|tiff)$/i.test(file.name)
+        );
+    }
 
-.preview-notice p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 11px;
-}
+    function handleImageSelection(file) {
+        if (!file) return;
 
-.download-card {
-  padding: 20px;
-  border: 1px solid var(--border);
-  border-radius: 15px;
-  background: var(--surface-2);
-}
+        if (!isImageFile(file)) {
+            setStatus("Please select a valid image file.", "error");
+            alert("Please select a valid image file.");
+            return;
+        }
 
-.download-card h3 {
-  margin: 0;
-  font-size: 16px;
-}
+        if (file.size > 25 * 1024 * 1024) {
+            setStatus("The image is too large. Choose an image under 25 MB.", "error");
+            alert("Please choose an image smaller than 25 MB.");
+            return;
+        }
 
-.download-card > p {
-  color: var(--muted);
-  font-size: 12px;
-}
+        selectedImageFile = file;
 
-.download-button {
-  display: block;
-  width: 100%;
-  padding: 13px;
-  margin-top: 10px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface);
-  color: var(--text);
-  text-align: left;
-  font-size: 12px;
-  font-weight: 700;
-}
+        if (currentObjectUrl) {
+            URL.revokeObjectURL(currentObjectUrl);
+        }
 
-.download-button:hover {
-  border-color: var(--primary-light);
-}
+        currentObjectUrl = URL.createObjectURL(file);
 
-.features-section {
-  margin-bottom: 55px;
-}
+        elements.sourceImage.onload = function () {
+            elements.imageDimensions.textContent =
+                elements.sourceImage.naturalWidth +
+                " × " +
+                elements.sourceImage.naturalHeight +
+                " px";
+        };
 
-.feature-grid {
-  display: grid;
-  grid-template-columns: repeat(3,minmax(0,1fr));
-  gap: 17px;
-}
+        elements.sourceImage.onerror = function () {
+            setStatus("The image could not be displayed. Try another image.", "error");
+        };
 
-.feature-card {
-  padding: 22px;
-  border: 1px solid var(--border);
-  border-radius: 15px;
-  background: var(--surface-2);
-}
+        elements.sourceImage.src = currentObjectUrl;
 
-.feature-card > span {
-  font-size: 26px;
-}
+        elements.imageFileName.textContent = file.name;
 
-.feature-card h3 {
-  margin-bottom: 7px;
-  font-size: 14px;
-}
+        elements.imagePreviewCard.hidden = false;
+        elements.resultCard.hidden = true;
 
-.feature-card p {
-  margin: 0;
-  color: var(--muted);
-  font-size: 12px;
-}
+        activateInputTab("image");
 
-.footer {
-  padding: 35px 5%;
-  text-align: center;
-  border-top: 1px solid var(--border);
-  background: var(--surface);
-}
+        setStatus(
+            "Image uploaded successfully. Now tap Convert Image to Text.",
+            "success"
+        );
 
-.footer-brand {
-  font-weight: 900;
-  font-size: 18px;
-}
+        elements.imagePreviewCard.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
 
-.footer p,
-.footer small {
-  color: var(--muted);
-  font-size: 12px;
-}
+    elements.imageInput.addEventListener("change", function (event) {
+        const file = event.target.files && event.target.files[0];
 
-@media (max-width: 900px) {
-  .upload-grid {
-    grid-template-columns: repeat(2,minmax(0,1fr));
-  }
+        handleImageSelection(file);
 
-  .editor-layout {
-    grid-template-columns: 1fr;
-  }
+        // Allows selecting the same file again later.
+        event.target.value = "";
+    });
 
-  .preview-column {
-    position: static;
-  }
-}
+    elements.cameraInput.addEventListener("change", function (event) {
+        const file = event.target.files && event.target.files[0];
 
-@media (max-width: 600px) {
-  .topbar {
-    padding: 12px 4%;
-  }
+        if (file) {
+            handleImageSelection(file);
+        }
 
-  .top-nav {
-    display: none;
-  }
+        event.target.value = "";
+    });
 
-  .container {
-    width: 94%;
-  }
+    elements.removeImageBtn.addEventListener("click", function () {
+        selectedImageFile = null;
 
-  .hero {
-    padding: 55px 5px 40px;
-  }
+        elements.imagePreviewCard.hidden = true;
+        elements.sourceImage.removeAttribute("src");
+        elements.imageFileName.textContent = "";
+        elements.imageDimensions.textContent = "";
 
-  .hero h1 {
-    letter-spacing: -1px;
-  }
+        setStatus("Image removed. Choose another image.");
+    });
 
-  .workspace,
-  .editor-section,
-  .features-section {
-    padding: 17px;
-    border-radius: 17px;
-  }
+    /* ---------------------------------------------------------
+       DRAG AND DROP IMAGE SUPPORT
+       --------------------------------------------------------- */
 
-  .upload-grid {
-    gap: 10px;
-  }
+    const dropZone = document.getElementById("imageDropZone");
 
-  .upload-card {
-    min-height: 165px;
-    padding: 14px;
-  }
+    if (dropZone) {
+        ["dragenter", "dragover"].forEach((eventName) => {
+            dropZone.addEventListener(eventName, function (event) {
+                event.preventDefault();
+                dropZone.classList.add("dragging");
+            });
+        });
 
-  .section-heading {
-    align-items: flex-start;
-  }
+        ["dragleave", "drop"].forEach((eventName) => {
+            dropZone.addEventListener(eventName, function (event) {
+                event.preventDefault();
+                dropZone.classList.remove("dragging");
+            });
+        });
 
-  .online-indicator {
-    display: none;
-  }
+        dropZone.addEventListener("drop", function (event) {
+            const file = event.dataTransfer &&
+                event.dataTransfer.files &&
+                event.dataTransfer.files[0];
 
-  .feature-grid {
-    grid-template-columns: 1fr;
-  }
+            if (file) {
+                handleImageSelection(file);
+            }
+        });
+    }
 
-  .design-canvas {
-    padding: 10px;
-    min-height: 400px;
-  }
+    /* ---------------------------------------------------------
+       IMAGE TO TEXT OCR
+       --------------------------------------------------------- */
 
-  .paper-preview {
-    min-height: 370px;
-    padding: 24px 15px 55px;
-  }
+    async function convertImageToText() {
+        if (busy) return;
 
-  .rendered-text {
-    font-size: 23px;
-  }
+        if (!selectedImageFile) {
+            setStatus("First upload an image, then start conversion.", "error");
+            alert("Please upload an image first.");
+            return;
+        }
 
-  .two-columns {
-    gap: 10px;
-  }
+        if (typeof Tesseract === "undefined") {
+            setStatus(
+                "OCR could not load. Check your internet connection and reload the website.",
+                "error"
+            );
+
+            alert(
+                "The OCR engine could not load. Connect to the internet, " +
+                "reload the website, and try again."
+            );
+
+            return;
+        }
+
+        setBusy(true);
+        setProgress(0, "Preparing image...", "Loading the OCR engine.");
+
+        try {
+            const language = elements.ocrLanguage.value || "eng";
+
+            setProgress(
+                5,
+                "Starting OCR...",
+                "The first conversion may take longer because the language model must load."
+            );
+
+            const result = await Tesseract.recognize(
+                selectedImageFile,
+                language,
+                {
+                    logger: function (message) {
+                        if (typeof message.progress === "number") {
+                            const percent = Math.round(
+                                Math.max(0, Math.min(1, message.progress)) * 100
+                            );
+
+                            setProgress(
+                                percent,
+                                message.status || "Recognizing text...",
+                                "Please keep this page open while the image is processed."
+                            );
+                        }
+                    }
+                }
+            );
+
+            const text = result &&
+                result.data &&
+                result.data.text
+                ? result.data.text.trim()
+                : "";
+
+            if (!text) {
+                showResult("");
+
+                setStatus(
+                    "No text was recognized. Try a clearer, brighter image or another OCR language.",
+                    "error"
+                );
+
+                alert(
+                    "No text was detected in this image. " +
+                    "Try a clearer photo with readable writing."
+                );
+
+                return;
+            }
+
+            showResult(text);
+
+            setProgress(100, "Conversion complete", "Your text is ready to edit.");
+
+            setStatus(
+                "Success! The image has been converted to editable text.",
+                "success"
+            );
+
+        } catch (error) {
+            console.error("Image OCR error:", error);
+
+            setStatus(
+                "Image conversion failed. Check your internet connection and try again.",
+                "error"
+            );
+
+            alert(
+                "Image conversion failed.\n\n" +
+                (error && error.message ? error.message : "Unknown error") +
+                "\n\nPlease check your internet connection and try again."
+            );
+
+        } finally {
+            setBusy(false);
+
+            window.setTimeout(hideProgress, 2500);
+        }
+    }
+
+    elements.convertImageBtn.addEventListener(
+        "click",
+        convertImageToText
+    );
+
+    /* ---------------------------------------------------------
+       PDF UPLOAD
+       --------------------------------------------------------- */
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + " B";
+
+        if (bytes < 1024 * 1024) {
+            return (bytes / 1024).toFixed(1) + " KB";
+        }
+
+        return (bytes / (1024 * 1024)).toFixed(2) + " MB";
+    }
+
+    async function handlePdfSelection(file) {
+        if (!file) return;
+
+        const isPdf =
+            file.type === "application/pdf" ||
+            file.name.toLowerCase().endsWith(".pdf");
+
+        if (!isPdf) {
+            setStatus("Please select a PDF document.", "error");
+            alert("Please select a PDF file.");
+            return;
+        }
+
+        if (file.size > 30 * 1024 * 1024) {
+            setStatus("The PDF is too large. Choose a PDF under 30 MB.", "error");
+            alert("Please choose a PDF smaller than 30 MB.");
+            return;
+        }
+
+        if (typeof pdfjsLib === "undefined") {
+            setStatus("The PDF reader failed to load. Check your internet connection.", "error");
+            alert("The PDF reader failed to load. Please reload the page.");
+            return;
+        }
+
+        selectedPdfFile = file;
+        pdfDocument = null;
+
+        elements.pdfPreviewCard.hidden = false;
+        elements.resultCard.hidden = true;
+
+        elements.pdfFileName.textContent = file.name;
+        elements.pdfFileSize.textContent = formatFileSize(file.size);
+        elements.pdfPageInfo.textContent = "Reading PDF page count...";
+
+        setStatus("PDF uploaded. Reading document information...");
+
+        try {
+            const buffer = await file.arrayBuffer();
+
+            pdfDocument = await pdfjsLib.getDocument({
+                data: new Uint8Array(buffer)
+            }).promise;
+
+            const pages = pdfDocument.numPages;
+
+            elements.pdfPageInfo.textContent =
+                pages + (pages === 1 ? " page" : " pages") + " detected.";
+
+            elements.pdfStartPage.max = pages;
+            elements.pdfEndPage.max = pages;
+            elements.pdfStartPage.value = 1;
+            elements.pdfEndPage.value = pages;
+
+            setStatus(
+                "PDF loaded successfully. Select the pages and tap Extract PDF Text.",
+                "success"
+            );
+
+        } catch (error) {
+            console.error("PDF loading error:", error);
+
+            pdfDocument = null;
+
+            elements.pdfPageInfo.textContent = "Unable to read this PDF.";
+
+            setStatus(
+                "This PDF could not be opened. It may be damaged or protected.",
+                "error"
+            );
+
+            alert(
+                "The PDF could not be opened. Try another PDF file."
+            );
+        }
+    }
+
+    elements.pdfInput.addEventListener("change", function (event) {
+        const file = event.target.files && event.target.files[0];
+
+        handlePdfSelection(file);
+
+        event.target.value = "";
+    });
+
+    elements.removePdfBtn.addEventListener("click", function () {
+        selectedPdfFile = null;
+        pdfDocument = null;
+
+        elements.pdfPreviewCard.hidden = true;
+
+        setStatus("PDF removed. Choose another document.");
+    });
+
+    /* ---------------------------------------------------------
+       PDF TO TEXT
+       Extract embedded text first. If a page is scanned,
+       render it to a canvas and run OCR.
+       --------------------------------------------------------- */
+
+    async function convertPdfToText() {
+        if (busy) return;
+
+        if (!selectedPdfFile || !pdfDocument) {
+            setStatus("Please upload a readable PDF first.", "error");
+            alert("Please upload a PDF and wait for it to load.");
+            return;
+        }
+
+        if (typeof Tesseract === "undefined") {
+            setStatus("OCR engine unavailable. Check your internet connection.", "error");
+            return;
+        }
+
+        const startPage = Number(elements.pdfStartPage.value);
+        const endPage = Number(elements.pdfEndPage.value);
+        const pageCount = pdfDocument.numPages;
+
+        if (
+            !Number.isInteger(startPage) ||
+            !Number.isInteger(endPage) ||
+            startPage < 1 ||
+            endPage < startPage ||
+            endPage > pageCount
+        ) {
+            alert("Enter a valid page range.");
+            return;
+        }
+
+        if (endPage - startPage + 1 > 20) {
+            alert(
+                "Please process no more than 20 pages at a time. " +
+                "You can process the remaining pages afterward."
+            );
+            return;
+        }
+
+        setBusy(true);
+
+        const extractedPages = [];
+
+        try {
+            for (let pageNumber = startPage; pageNumber <= endPage; pageNumber++) {
+                const overall = pageNumber - startPage;
+                const total = endPage - startPage + 1;
+
+                setProgress(
+                    (overall / total) * 100,
+                    "Reading page " + pageNumber + "...",
+                    "Extracting selectable text or recognizing scanned handwriting."
+                );
+
+                const page = await pdfDocument.getPage(pageNumber);
+
+                const textContent = await page.getTextContent();
+
+                let pageText = textContent.items
+                    .map(item => item.str || "")
+                    .join(" ")
+                    .trim();
+
+                if (pageText.length < 3) {
+                    const viewport = page.getViewport({ scale: 1.6 });
+
+                    const canvas = document.createElement("canvas");
+                    const context = canvas.getContext("2d");
+
+                    canvas.width = Math.ceil(viewport.width);
+                    canvas.height = Math.ceil(viewport.height);
+
+                    await page.render({
+                        canvasContext: context,
+                        viewport: viewport
+                    }).promise;
+
+                    setProgress(
+                        ((overall + 0.3) / total) * 100,
+                        "Recognizing scanned page " + pageNumber + "...",
+                        "Running OCR on the PDF page."
+                    );
+
+                    const language = elements.pdfLanguage.value || "eng";
+
+                    const result = await Tesseract.recognize(
+                        canvas,
+                        language
+                    );
+
+                    pageText = result &&
+                        result.data &&
+                        result.data.text
+                        ? result.data.text.trim()
+                        : "";
+
+                    canvas.width = 1;
+                    canvas.height = 1;
+                }
+
+                extractedPages.push(
+                    "----- Page " + pageNumber + " -----\n" +
+                    (pageText || "[No text detected on this page.]")
+                );
+            }
+
+            const combinedText = extractedPages.join("\n\n");
+
+            showResult(combinedText);
+
+            setProgress(100, "PDF conversion complete", "The extracted text is ready.");
+
+            setStatus(
+                "Success! The selected PDF pages have been processed.",
+                "success"
+            );
+
+        } catch (error) {
+            console.error("PDF conversion error:", error);
+
+            setStatus(
+                "PDF conversion failed. Try a smaller page range or another PDF.",
+                "error"
+            );
+
+            alert(
+                "PDF conversion failed.\n\n" +
+                (error && error.message ? error.message : "Unknown error")
+            );
+
+        } finally {
+            setBusy(false);
+
+            window.setTimeout(hideProgress, 2500);
+        }
+    }
+
+    elements.convertPdfBtn.addEventListener(
+        "click",
+        convertPdfToText
+    );
+
+    /* ---------------------------------------------------------
+       RESULT ACTIONS
+       --------------------------------------------------------- */
+
+    elements.outputText.addEventListener(
+        "input",
+        updateCharacterCount
+    );
+
+    elements.copyTextBtn.addEventListener("click", async function () {
+        const text = elements.outputText.value;
+
+        if (!text.trim()) {
+            alert("There is no text to copy yet.");
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(text);
+
+            setStatus("Text copied to clipboard.", "success");
+
+        } catch (error) {
+            elements.outputText.focus();
+            elements.outputText.select();
+
+            const copied = document.execCommand("copy");
+
+            setStatus(
+                copied
+                    ? "Text copied to clipboard."
+                    : "Select the text and copy it manually.",
+                copied ? "success" : "error"
+            );
+        }
+    });
+
+    elements.downloadTextBtn.addEventListener("click", function () {
+        const text = elements.outputText.value;
+
+        if (!text.trim()) {
+            alert("There is no text to download.");
+            return;
+        }
+
+        downloadBlob(
+            new Blob([text], { type: "text/plain;charset=utf-8" }),
+            "naol-converted-text.txt"
+        );
+
+        setStatus("Text file downloaded.", "success");
+    });
+
+    elements.sendToHandwritingBtn.addEventListener("click", function () {
+        elements.handwritingInput.value = elements.outputText.value;
+
+        showWritingWorkspace();
+
+        updateHandwritingPreview();
+    });
+
+    /* ---------------------------------------------------------
+       COMPUTER TEXT TO HANDWRITING
+       --------------------------------------------------------- */
+
+    function updateHandwritingPreview() {
+        const text = elements.handwritingInput.value;
+
+        elements.handwritingPreview.textContent =
+            text || "Your handwriting preview will appear here.";
+
+        elements.handwritingPreview.style.fontFamily =
+            elements.handwritingFont.value;
+
+        elements.handwritingPreview.style.color =
+            elements.writingColor.value;
+
+        elements.handwritingPreview.style.fontSize =
+            elements.writingSize.value + "px";
+
+        elements.paperPreview.classList.remove(
+            "plain-paper",
+            "lined-paper",
+            "grid-paper"
+        );
+
+        const styles = {
+            plain: "plain-paper",
+            lined: "lined-paper",
+            grid: "grid-paper"
+        };
+
+        elements.paperPreview.classList.add(
+            styles[elements.paperStyle.value] || "plain-paper"
+        );
+    }
+
+    elements.handwritingInput.addEventListener(
+        "input",
+        updateHandwritingPreview
+    );
+
+    elements.handwritingFont.addEventListener(
+        "change",
+        updateHandwritingPreview
+    );
+
+    elements.writingColor.addEventListener(
+        "input",
+        updateHandwritingPreview
+    );
+
+    elements.writingSize.addEventListener(
+        "change",
+        updateHandwritingPreview
+    );
+
+    elements.paperStyle.addEventListener(
+        "change",
+        updateHandwritingPreview
+    );
+
+    /* ---------------------------------------------------------
+       DOWNLOAD HELPERS
+       --------------------------------------------------------- */
+
+    function downloadBlob(blob, filename) {
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement("a");
+
+        anchor.href = url;
+        anchor.download = filename;
+
+        document.body.appendChild(anchor);
+        anchor.click();
+        anchor.remove();
+
+        window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    async function renderPreviewCanvas() {
+        if (typeof html2canvas === "undefined") {
+            throw new Error("The image export library failed to load.");
+        }
+
+        updateHandwritingPreview();
+
+        return await html2canvas(elements.paperPreview, {
+            scale: 2,
+            backgroundColor: "#ffffff",
+            useCORS: true
+        });
+    }
+
+    elements.downloadHandwritingBtn.addEventListener(
+        "click",
+        async function () {
+            if (!elements.handwritingInput.value.trim()) {
+                alert("Please enter some text first.");
+                return;
+            }
+
+            try {
+                setStatus("Preparing handwriting image...");
+
+                const canvas = await renderPreviewCanvas();
+
+                canvas.toBlob(function (blob) {
+                    if (!blob) {
+                        setStatus("Could not create the image.", "error");
+                        return;
+                    }
+
+                    downloadBlob(blob, "naol-handwriting.png");
+
+                    setStatus(
+                        "Handwriting image downloaded successfully.",
+                        "success"
+                    );
+                }, "image/png");
+
+            } catch (error) {
+                console.error("PNG export error:", error);
+
+                setStatus("Image export failed.", "error");
+
+                alert(
+                    "Could not export the image. Please reload and try again."
+                );
+            }
+        }
+    );
+
+    elements.downloadHandwritingPdfBtn.addEventListener(
+        "click",
+        async function () {
+            if (!elements.handwritingInput.value.trim()) {
+                alert("Please enter some text first.");
+                return;
+            }
+
+            try {
+                if (!window.jspdf || !window.jspdf.jsPDF) {
+                    throw new Error("The PDF export library failed to load.");
+                }
+
+                setStatus("Preparing handwriting PDF...");
+
+                const canvas = await renderPreviewCanvas();
+                const image = canvas.toDataURL("image/png");
+
+                const PDF = window.jspdf.jsPDF;
+
+                const pdf = new PDF({
+                    orientation: "portrait",
+                    unit: "mm",
+                    format: "a4"
+                });
+
+                const width = 190;
+                const height = canvas.height * width / canvas.width;
+
+                pdf.addImage(
+                    image,
+                    "PNG",
+                    10,
+                    10,
+                    width,
+                    Math.min(height, 275)
+                );
+
+                pdf.save("naol-handwriting.pdf");
+
+                setStatus(
+                    "Handwriting PDF downloaded successfully.",
+                    "success"
+                );
+
+            } catch (error) {
+                console.error("PDF export error:", error);
+
+                setStatus("PDF export failed.", "error");
+
+                alert(
+                    "Could not export the PDF. Please reload and try again."
+                );
+            }
+        }
+    );
+
+    /* ---------------------------------------------------------
+       STARTUP
+       --------------------------------------------------------- */
+
+    updateHandwritingPreview();
+
+    activateInputTab("image");
+
+    setStatus(
+        "Ready. Choose a conversion mode to begin.",
+        "success"
+    );
+
+    console.log("Naol Converter initialized successfully.");
 }
