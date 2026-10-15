@@ -1,621 +1,1848 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+"use strict";
 
-  <meta name="theme-color" content="#080d1b">
-  <meta
-    name="description"
-    content="Naol Converter — Image to Text, PDF to Text, and Text to Handwriting."
-  >
+/* =========================================================
+   NAOL CONVERTER
+   Image OCR + Translation + Handwriting Generator
+   ========================================================= */
 
-  <title>Naol Converter | Smart Text Tools</title>
+document.addEventListener("DOMContentLoaded", () => {
+  const $ = (id) => document.getElementById(id);
 
-  <link rel="stylesheet" href="style.css">
+  const state = {
+    image: null,
+    imageUrl: null,
+    rotation: 0,
+    processing: false,
+    translateProcessing: false,
+    handwritingFont: "Caveat",
+    watermarkText: "Naol Converter",
+    currentCaption: ""
+  };
 
-  <!-- OCR -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  const LANGUAGES = [
+    { code: "en", name: "English" },
+    { code: "am", name: "አማርኛ (Amharic)" },
+    { code: "om", name: "Afaan Oromoo" }
+  ];
 
-  <!-- PDF reading -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  /* =======================================================
+     GENERAL HELPERS
+     ======================================================= */
 
-  <!-- Export preview as image -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  function on(id, event, handler) {
+    const element = $(id);
+    if (element) {
+      element.addEventListener(event, handler);
+    }
+  }
 
-  <!-- Export PDF -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-</head>
+  function setText(id, value) {
+    const element = $(id);
+    if (element) element.textContent = value;
+  }
 
-<body>
+  function setValue(id, value) {
+    const element = $(id);
+    if (element) element.value = value;
+  }
 
-  <!-- HEADER -->
+  function show(id, visible = true) {
+    const element = $(id);
+    if (element) element.hidden = !visible;
+  }
 
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-icon">N</div>
-      <span>Naol Converter</span>
-    </div>
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
 
-    <div class="status-pill">✦ Smart Text Tools</div>
-  </header>
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
 
-  <!-- HERO -->
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 
-  <section class="hero">
-    <div class="hero-badge">YOUR DIGITAL CONVERSION TOOL</div>
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+  }
 
-    <h1>
-      Convert Images into
-      <span class="gradient-text">Text</span>
-    </h1>
+  function setExportStatus(message, type = "info") {
+    const element = $("exportStatus");
 
-    <p>
-      Extract text from pictures, work with PDF documents,
-      edit your words, and create handwriting-style pages.
-    </p>
-  </section>
+    if (element) {
+      element.textContent = message;
+      element.dataset.type = type;
+    }
+  }
 
-  <main class="main-container">
+  function setOCRStatus(message) {
+    setText("ocrStatusText", message);
+  }
 
-    <!-- MAIN NAVIGATION -->
+  /* =======================================================
+     NAVIGATION
+     ======================================================= */
 
-    <nav class="tool-nav" aria-label="Conversion tools">
+  document.querySelectorAll(".nav-item[data-view]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const viewId = button.dataset.view;
 
-      <button
-        type="button"
-        class="nav-item active"
-        data-view="imageTextView"
-      >
-        📷 Image to Text
-      </button>
+      document.querySelectorAll(".nav-item[data-view]").forEach((item) => {
+        item.classList.toggle("active", item === button);
+        item.setAttribute(
+          "aria-selected",
+          item === button ? "true" : "false"
+        );
+      });
 
-      <button
-        type="button"
-        class="nav-item"
-        data-view="handwritingView"
-      >
-        ✍️ Text to Handwriting
-      </button>
+      document.querySelectorAll(".tool-view").forEach((view) => {
+        view.hidden = view.id !== viewId;
+      });
 
-    </nav>
+      if (viewId === "handwritingView") {
+        renderHandwriting();
+      }
+    });
+  });
 
-    <!-- ==================================================
-         IMAGE TO TEXT
-         ================================================== -->
+  /* =======================================================
+     TRANSLATOR INTERFACE
+     Interface is created automatically if not in HTML.
+     ======================================================= */
 
-    <section class="tool-view active" id="imageTextView">
+  function createTranslatorInterface() {
+    if ($("naolTranslator")) return;
 
-      <div class="converter-card">
+    const main =
+      document.querySelector("main") ||
+      document.querySelector(".app-container") ||
+      document.body;
 
-        <div class="section-heading">
-          <h2>📷 Image to Text</h2>
-          <p>
-            Select an image, take a photo, or upload a PDF.
-            Extracted text will appear in the editable text box.
-          </p>
+    const section = document.createElement("section");
+
+    section.id = "naolTranslator";
+    section.className = "tool-view naol-translator";
+
+    section.innerHTML = `
+      <div class="translator-card">
+        <div class="translator-heading">
+          <div>
+            <p class="translator-eyebrow">NAOL LANGUAGE TOOLS</p>
+            <h2>🌐 Language Translator</h2>
+            <p>
+              Translate between English, Amharic and Afaan Oromoo.
+            </p>
+          </div>
+          <span class="translator-icon">文</span>
         </div>
 
-        <!-- LANGUAGE -->
-
-        <div class="form-group">
-
-          <label for="ocrLanguage">
-            Choose Text Language / Afaan Barruu
+        <div class="translator-language-row">
+          <label>
+            Translate from
+            <select id="naolTranslateSource">
+              <option value="en">English</option>
+              <option value="am">Amharic — አማርኛ</option>
+              <option value="om">Afaan Oromoo</option>
+              <option value="auto">Detect automatically</option>
+            </select>
           </label>
 
-          <select id="ocrLanguage">
+          <button
+            id="naolSwapLanguages"
+            class="translator-swap"
+            type="button"
+            title="Swap languages"
+          >⇄</button>
 
-            <option value="eng">English</option>
-
-            <option value="amh">
-              Amharic — አማርኛ
-            </option>
-
-            <option value="orm">
-              Afaan Oromoo — Experimental
-            </option>
-
-            <option value="eng+amh">
-              English + Amharic
-            </option>
-
-          </select>
-
-          <small>
-            Afaan Oromoo OCR requires a compatible language model.
-            The option is shown here, but the OCR engine may not
-            support Oromoo directly. English or Amharic OCR may
-            misread Oromoo words.
-          </small>
-
-        </div>
-
-        <!-- UPLOAD IMAGE AND CAMERA -->
-
-        <div class="upload-area">
-
-          <label for="imageInput" class="upload-button">
-            📁 Choose Image
+          <label>
+            Translate to
+            <select id="naolTranslateTarget">
+              <option value="om">Afaan Oromoo</option>
+              <option value="am">Amharic — አማርኛ</option>
+              <option value="en">English</option>
+            </select>
           </label>
-
-          <input
-            type="file"
-            id="imageInput"
-            accept="image/*"
-            hidden
-          >
-
-          <label
-            for="cameraInput"
-            class="upload-button secondary-button"
-          >
-            📸 Take Photo
-          </label>
-
-          <input
-            type="file"
-            id="cameraInput"
-            accept="image/*"
-            capture="environment"
-            hidden
-          >
-
         </div>
 
-        <!-- PDF UPLOAD -->
+        <div class="translator-panels">
+          <div class="translator-panel">
+            <label for="naolTranslateInput">Your text</label>
+            <textarea
+              id="naolTranslateInput"
+              rows="7"
+              placeholder="Write or paste your text here..."
+            ></textarea>
 
-        <div class="upload-area">
-
-          <label
-            for="pdfInput"
-            class="upload-button secondary-button"
-          >
-            📄 Choose PDF
-          </label>
-
-          <input
-            type="file"
-            id="pdfInput"
-            accept="application/pdf,.pdf"
-            hidden
-          >
-
-        </div>
-
-        <div id="sourceStatus" role="status" aria-live="polite">
-          No image or PDF selected.
-        </div>
-
-        <!-- IMAGE PREVIEW -->
-
-        <div id="imagePreview">
-
-          <div id="emptyPreview">
-            Your selected image will appear here.
-            <br>
-            Choose an image or take a photo to begin.
+            <div class="translator-actions">
+              <button id="naolPasteTranslation" type="button">
+                Paste
+              </button>
+              <button id="naolClearTranslation" type="button">
+                Clear
+              </button>
+            </div>
           </div>
 
-          <img
-            id="sourceImage"
-            alt="Selected image preview"
-            hidden
-          >
+          <div class="translator-panel">
+            <label for="naolTranslateOutput">Translation</label>
+            <textarea
+              id="naolTranslateOutput"
+              rows="7"
+              placeholder="Your translated text will appear here..."
+              readonly
+            ></textarea>
 
+            <div class="translator-actions">
+              <button id="naolCopyTranslation" type="button">
+                Copy translation
+              </button>
+              <button id="naolUseTranslation" type="button">
+                Use in handwriting
+              </button>
+            </div>
+          </div>
         </div>
-
-        <!-- IMAGE CONTROLS -->
-
-        <div class="button-row">
-
-          <button id="rotateLeft" type="button">
-            ↶ Rotate Left
-          </button>
-
-          <button id="rotateRight" type="button">
-            ↷ Rotate Right
-          </button>
-
-          <button id="removeImage" type="button">
-            ✕ Remove File
-          </button>
-
-        </div>
-
-        <!-- IMAGE QUALITY -->
-
-        <div class="form-group">
-
-          <label for="imageScale">
-            Image Processing Quality
-          </label>
-
-          <select id="imageScale">
-            <option value="1">Normal</option>
-            <option value="1.5" selected>High</option>
-            <option value="2">Very High</option>
-          </select>
-
-          <small>
-            High quality may help recognize small text, but
-            processing can take longer on mobile devices.
-          </small>
-
-        </div>
-
-        <!-- EXTRACT -->
 
         <button
-          id="extractButton"
+          id="naolTranslateButton"
+          class="translator-primary"
           type="button"
-          class="primary-button"
         >
-          🔍 Extract Text
+          🌐 Translate Text
         </button>
 
-        <!-- PROGRESS -->
-
-        <div id="ocrProgressWrap" hidden>
-
-          <p id="ocrStatusText" role="status" aria-live="polite">
-            Ready
-          </p>
-
-          <div class="progress-track">
-            <div
-              id="ocrProgressBar"
-              class="progress-bar"
-            ></div>
-          </div>
-
-          <span id="ocrPercent">0%</span>
-
-        </div>
-
-        <!-- OCR RESULT -->
-
-        <div class="form-group" style="margin-top: 25px;">
-
-          <label for="extractedText">
-            Extracted Text / Barruu Ba'e
-          </label>
-
-          <textarea
-            id="extractedText"
-            rows="10"
-            placeholder="Extracted text will appear here. You can edit it."
-          ></textarea>
-
-          <small>
-            You can correct the extracted text before copying or downloading.
-          </small>
-
-        </div>
-
-        <!-- RESULT COUNTS -->
-
-        <div class="button-row">
-
-          <button id="copyExtracted" type="button">
-            📋 Copy Text
-          </button>
-
-          <button id="downloadTxt" type="button">
-            ⬇ Download TXT
-          </button>
-
-          <button id="clearExtracted" type="button">
-            🗑 Clear Text
-          </button>
-
-        </div>
-
-        <div class="button-row">
-
-          <button id="sendToHandwriting" type="button">
-            ✍️ Send to Handwriting
-          </button>
-
-        </div>
-
-        <p id="ocrHelp" role="status" aria-live="polite">
-          Tip: Clear images with good lighting usually give better results.
+        <p id="naolTranslateStatus" role="status" aria-live="polite">
+          Select languages and enter your text.
         </p>
 
+        <p class="translator-note">
+          Translation requires an internet connection. Always check
+          important translations for accuracy.
+        </p>
       </div>
-
-    </section>
-
-    <!-- ==================================================
-         TEXT TO HANDWRITING
-         ================================================== -->
-
-    <section class="tool-view" id="handwritingView">
-
-      <div class="converter-card">
-
-        <div class="section-heading">
-          <h2>✍️ Text to Handwriting</h2>
-          <p>
-            Type or paste your text, customize the page,
-            and export your handwriting-style document.
-          </p>
-        </div>
-
-        <!-- TEXT INPUT -->
-
-        <div class="form-group">
-
-          <label for="handwritingText">
-            Your Text
-          </label>
-
-          <textarea
-            id="handwritingText"
-            rows="7"
-            placeholder="Type or paste your text here..."
-          ></textarea>
-
-        </div>
-
-        <div class="button-row">
-
-          <button id="pasteText" type="button">
-            📋 Paste Text
-          </button>
-
-          <button id="clearHandwriting" type="button">
-            🗑 Clear Text
-          </button>
-
-        </div>
-
-        <!-- HANDWRITING SETTINGS -->
-
-        <div class="paper-controls">
-
-          <div class="form-group">
-
-            <label for="handwritingFont">
-              Handwriting Font
-            </label>
-
-            <select id="handwritingFont">
-              <option value="Comic Sans MS">
-                Casual Handwriting
-              </option>
-
-              <option value="Segoe Print">
-                Segoe Print
-              </option>
-
-              <option value="Bradley Hand">
-                Bradley Hand
-              </option>
-
-              <option value="cursive">
-                Cursive
-              </option>
-
-              <option value="Georgia">
-                Georgia
-              </option>
-            </select>
-
-          </div>
-
-          <div class="form-group">
-
-            <label for="fontSize">
-              Font Size
-            </label>
-
-            <select id="fontSize">
-              <option value="16">Small</option>
-              <option value="20" selected>Medium</option>
-              <option value="24">Large</option>
-              <option value="30">Extra Large</option>
-            </select>
-
-            <small id="fontSizeValue">20 px</small>
-
-          </div>
-
-          <div class="form-group">
-
-            <label for="lineSpacing">
-              Line Spacing
-            </label>
-
-            <select id="lineSpacing">
-              <option value="1.4">Compact</option>
-              <option value="1.8" selected>Normal</option>
-              <option value="2.2">Wide</option>
-              <option value="2.6">Extra Wide</option>
-            </select>
-
-            <small id="lineSpacingValue">1.8</small>
-
-          </div>
-
-          <div class="form-group">
-
-            <label for="inkColor">
-              Ink Color
-            </label>
-
-            <select id="inkColor">
-              <option value="#172b72">Blue Ink</option>
-              <option value="#171717">Black Ink</option>
-              <option value="#8b1e3f">Red Ink</option>
-              <option value="#246b45">Green Ink</option>
-            </select>
-
-            <small id="inkColorLabel">Blue Ink</small>
-
-          </div>
-
-          <div class="form-group">
-
-            <label for="paperStyle">
-              Paper Style
-            </label>
-
-            <select id="paperStyle">
-              <option value="plain">Plain Paper</option>
-              <option value="ruled" selected>Ruled Paper</option>
-              <option value="grid">Grid Paper</option>
-            </select>
-
-          </div>
-
-          <div class="form-group">
-
-            <label for="paperSize">
-              Paper Size
-            </label>
-
-            <select id="paperSize">
-              <option value="A4" selected>A4</option>
-              <option value="Letter">Letter</option>
-              <option value="A5">A5</option>
-            </select>
-
-            <small id="pageSizeLabel">A4 page</small>
-
-          </div>
-
-          <div class="form-group">
-
-            <label for="textAlign">
-              Text Alignment
-            </label>
-
-            <select id="textAlign">
-              <option value="left">Left</option>
-              <option value="center">Center</option>
-              <option value="right">Right</option>
-              <option value="justify">Justify</option>
-            </select>
-
-          </div>
-
-          <div class="form-group">
-
-            <label for="pagePadding">
-              Page Margin
-            </label>
-
-            <select id="pagePadding">
-              <option value="18">Narrow</option>
-              <option value="30" selected>Normal</option>
-              <option value="45">Wide</option>
-            </select>
-
-          </div>
-
-        </div>
-
-        <!-- OPTIONAL ELEMENTS -->
-
-        <label class="checkbox-line">
-
-          <input
-            type="checkbox"
-            id="showWatermark"
-            checked
-          >
-
-          Show Naol Converter Watermark
-
-        </label>
-
-        <label class="checkbox-line">
-
-          <input
-            type="checkbox"
-            id="showDate"
-            checked
-          >
-
-          Show Date
-
-        </label>
-
-        <!-- PREVIEW -->
-
-        <div class="section-heading" style="margin-top: 30px;">
-
-          <h2>📄 Live Preview</h2>
-
-          <p>
-            Your page preview updates when the text or settings change.
-          </p>
-
-        </div>
-
-        <div id="paperPreview" class="paper-preview ruled">
-
-          <h3>Naol Converter</h3>
-
-          <div id="handwritingOutput">
-            Your handwriting preview will appear here.
-          </div>
-
-          <div id="watermark">
-            Naol Converter
-          </div>
-
-          <div id="paperDate"></div>
-
-        </div>
-
-        <!-- EXPORT -->
-
-        <div class="button-row" style="margin-top: 20px;">
-
-          <button id="exportPng" type="button">
-            🖼 Export PNG
-          </button>
-
-          <button id="exportJpg" type="button">
-            🖼 Export JPG
-          </button>
-
-          <button id="exportPdf" type="button">
-            📄 Export PDF
-          </button>
-
-          <button id="printPage" type="button">
-            🖨 Print
-          </button>
-
-        </div>
-
-        <p id="exportStatus" role="status" aria-live="polite"></p>
-
-      </div>
-
-    </section>
-
-  </main>
-
-  <!-- FOOTER -->
-
-  <footer>
-    <strong>Naol Converter</strong>
-    <br>
-
-    Simple tools for images, text, PDFs, and handwriting.
-
-    <br>
-
-    OCR accuracy depends on image quality and supported languages.
-  </footer>
-
-  <!-- APPLICATION JAVASCRIPT -->
-  <script src="script.js"></script>
-
-</body>
-</html>
+    `;
+
+    const style = document.createElement("style");
+
+    style.id = "naolTranslatorStyles";
+
+    style.textContent = `
+      .naol-translator {
+        width: 100%;
+        max-width: 1100px;
+        margin: 28px auto;
+      }
+
+      .translator-card {
+        padding: 24px;
+        border: 1px solid rgba(139, 92, 246, .35);
+        border-radius: 22px;
+        background: linear-gradient(
+          145deg,
+          rgba(18, 25, 52, .98),
+          rgba(35, 20, 66, .96)
+        );
+        box-shadow: 0 16px 42px rgba(0, 0, 0, .25);
+        color: #f8fafc;
+      }
+
+      .translator-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 22px;
+      }
+
+      .translator-heading h2 {
+        margin: 5px 0 8px;
+        font-size: clamp(22px, 4vw, 30px);
+      }
+
+      .translator-heading p {
+        line-height: 1.6;
+      }
+
+      .translator-eyebrow {
+        color: #67e8f9;
+        font-size: 12px;
+        letter-spacing: 2px;
+        font-weight: 800;
+      }
+
+      .translator-icon {
+        display: grid;
+        place-items: center;
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+        font-size: 25px;
+        font-weight: 800;
+        flex-shrink: 0;
+      }
+
+      .translator-language-row {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: end;
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+
+      .translator-language-row label,
+      .translator-panel label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+
+      .translator-language-row select,
+      .translator-panel textarea {
+        width: 100%;
+        padding: 13px;
+        border: 1px solid rgba(148, 163, 184, .35);
+        border-radius: 12px;
+        background: #111a33;
+        color: #f8fafc;
+        font: inherit;
+        box-sizing: border-box;
+      }
+
+      .translator-swap {
+        width: 45px;
+        height: 45px;
+        margin-bottom: 1px;
+        border: 0;
+        border-radius: 12px;
+        background: #312e81;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+      }
+
+      .translator-panels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+
+      .translator-panel {
+        min-width: 0;
+      }
+
+      .translator-panel textarea {
+        min-height: 180px;
+        resize: vertical;
+        line-height: 1.7;
+      }
+
+      .translator-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .translator-actions button {
+        padding: 9px 12px;
+        border: 1px solid rgba(148, 163, 184, .35);
+        border-radius: 10px;
+        background: rgba(51, 65, 85, .65);
+        color: white;
+        cursor: pointer;
+      }
+
+      .translator-primary {
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+        padding: 15px;
+        border: 0;
+        border-radius: 13px;
+        background: linear-gradient(100deg, #06b6d4, #7c3aed);
+        color: white;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      .translator-primary:disabled {
+        opacity: .6;
+        cursor: wait;
+      }
+
+      #naolTranslateStatus {
+        min-height: 22px;
+        margin-top: 14px;
+        color: #67e8f9;
+        line-height: 1.6;
+      }
+
+      .translator-note {
+        font-size: 12px;
+        color: #cbd5e1;
+        line-height: 1.7;
+      }
+
+      @media (max-width: 650px) {
+        .translator-card {
+          padding: 16px;
+        }
+
+        .translator-panels {
+          grid-template-columns: 1fr;
+        }
+
+        .translator-language-row {
+          grid-template-columns: 1fr;
+        }
+
+        .translator-swap {
+          width: 100%;
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+
+    /*
+      Add the translator before the footer.
+      If there is no footer, add it at the end of main.
+    */
+
+    const footer = document.querySelector("footer");
+
+    if (footer && footer.parentNode === main) {
+      main.insertBefore(section, footer);
+    } else {
+      main.appendChild(section);
+    }
+
+    bindTranslatorEvents();
+  }
+
+  function setTranslatorStatus(message) {
+    setText("naolTranslateStatus", message);
+  }
+
+  function getLanguageName(code) {
+    const item = LANGUAGES.find((language) => language.code === code);
+    return item ? item.name : code;
+  }
+
+  async function translateText(text, source, target) {
+    if (!text.trim()) {
+      throw new Error("Please enter text to translate.");
+    }
+
+    if (source === target) {
+      return text;
+    }
+
+    /*
+      Google Translate's unofficial endpoint is used here as a
+      simple no-key demonstration. It is not an official API and
+      may change, restrict requests, or fail in some browsers.
+      For production use, connect an official translation service.
+    */
+
+    const url = new URL(
+      "https://translate.googleapis.com/translate_a/single"
+    );
+
+    url.searchParams.set("client", "gtx");
+    url.searchParams.set("sl", source);
+    url.searchParams.set("tl", target);
+    url.searchParams.set("dt", "t");
+    url.searchParams.set("q", text);
+
+    const response = await fetch(url.toString(), {
+      method: "GET"
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        "Translation service is unavailable. Please try again."
+      );
+    }
+
+    const data = await response.json();
+
+    if (!Array.isArray(data) || !Array.isArray(data[0])) {
+      throw new Error("The translation service returned an invalid result.");
+    }
+
+    const translated = data[0]
+      .map((item) => Array.isArray(item) ? item[0] || "" : "")
+      .join("")
+      .trim();
+
+    if (!translated) {
+      throw new Error(
+        "No translation returned. Try another sentence or language."
+      );
+    }
+
+    return translated;
+  }
+
+  function bindTranslatorEvents() {
+    on("naolTranslateButton", "click", async () => {
+      if (state.translateProcessing) return;
+
+      const input = $("naolTranslateInput");
+      const output = $("naolTranslateOutput");
+      const sourceSelect = $("naolTranslateSource");
+      const targetSelect = $("naolTranslateTarget");
+      const button = $("naolTranslateButton");
+
+      if (!input || !output || !sourceSelect || !targetSelect) return;
+
+      const text = input.value.trim();
+      const source = sourceSelect.value;
+      const target = targetSelect.value;
+
+      if (!text) {
+        setTranslatorStatus("Please enter text first.");
+        input.focus();
+        return;
+      }
+
+      if (source === target) {
+        setTranslatorStatus(
+          "Choose two different languages to translate."
+        );
+        return;
+      }
+
+      state.translateProcessing = true;
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = "Translating...";
+      }
+
+      setTranslatorStatus(
+        `Translating ${getLanguageName(source)} to ${getLanguageName(target)}...`
+      );
+
+      try {
+        const result = await translateText(text, source, target);
+
+        output.value = result;
+
+        setTranslatorStatus(
+          `Translation completed: ${getLanguageName(source)} → ${getLanguageName(target)}.`
+        );
+      } catch (error) {
+        console.error("Translation error:", error);
+
+        setTranslatorStatus(
+          error.message ||
+          "Translation failed. Check your internet and try again."
+        );
+      } finally {
+        state.translateProcessing = false;
+
+        if (button) {
+          button.disabled = false;
+          button.textContent = "🌐 Translate Text";
+        }
+      }
+    });
+
+    on("naolSwapLanguages", "click", () => {
+      const source = $("naolTranslateSource");
+      const target = $("naolTranslateTarget");
+      const input = $("naolTranslateInput");
+      const output = $("naolTranslateOutput");
+
+      if (!source || !target) return;
+
+      if (source.value === "auto") {
+        setTranslatorStatus(
+          "Select a source language before swapping."
+        );
+        return;
+      }
+
+      const oldSource = source.value;
+      source.value = target.value;
+      target.value = oldSource;
+
+      if (input && output && output.value.trim()) {
+        const oldInput = input.value;
+        input.value = output.value;
+        output.value = oldInput;
+      }
+
+      setTranslatorStatus("Languages swapped.");
+    });
+
+    on("naolClearTranslation", "click", () => {
+      setValue("naolTranslateInput", "");
+      setValue("naolTranslateOutput", "");
+      setTranslatorStatus("Text cleared.");
+    });
+
+    on("naolPasteTranslation", "click", async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        const input = $("naolTranslateInput");
+
+        if (input) {
+          input.value = text;
+          input.focus();
+        }
+
+        setTranslatorStatus("Text pasted.");
+      } catch {
+        setTranslatorStatus(
+          "Clipboard permission denied. Paste the text manually."
+        );
+      }
+    });
+
+    on("naolCopyTranslation", "click", async () => {
+      const output = $("naolTranslateOutput");
+
+      if (!output || !output.value.trim()) {
+        setTranslatorStatus("There is no translation to copy.");
+        return;
+      }
+
+      try {
+        await navigator.clipboard.writeText(output.value);
+        setTranslatorStatus("Translation copied.");
+      } catch {
+        output.focus();
+        output.select();
+
+        try {
+          document.execCommand("copy");
+          setTranslatorStatus("Translation copied.");
+        } catch {
+          setTranslatorStatus(
+            "Copy failed. Select the translation and copy manually."
+          );
+        }
+      }
+    });
+
+    on("naolUseTranslation", "click", () => {
+      const output = $("naolTranslateOutput");
+      const handwriting = $("handwritingText");
+
+      if (!output || !output.value.trim()) {
+        setTranslatorStatus("Translate text first.");
+        return;
+      }
+
+      if (!handwriting) {
+        setTranslatorStatus(
+          "Handwriting text box was not found on this page."
+        );
+        return;
+      }
+
+      handwriting.value = output.value;
+      handwriting.dispatchEvent(
+        new Event("input", { bubbles: true })
+      );
+
+      const nav = document.querySelector(
+        '.nav-item[data-view="handwritingView"]'
+      );
+
+      if (nav) nav.click();
+
+      renderHandwriting();
+
+      setTranslatorStatus(
+        "Translation sent to the handwriting editor."
+      );
+    });
+  }
+
+  /* =======================================================
+     IMAGE UPLOAD AND CAMERA
+     ======================================================= */
+
+  function releaseImageUrl() {
+    if (state.imageUrl) {
+      URL.revokeObjectURL(state.imageUrl);
+      state.imageUrl = null;
+    }
+  }
+
+  function loadImageFile(file) {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      setOCRStatus("Please select a valid image.");
+      return;
+    }
+
+    releaseImageUrl();
+
+    state.image = file;
+    state.rotation = 0;
+    state.imageUrl = URL.createObjectURL(file);
+
+    const image = $("sourceImage");
+
+    if (!image) return;
+
+    image.onload = () => {
+      show("emptyPreview", false);
+      show("imagePreview", true);
+
+      setText("sourceStatus", file.name);
+
+      image.style.transform = "rotate(0deg)";
+
+      setOCRStatus(
+        "Image ready. For better results, use a clear and well-lit photo."
+      );
+    };
+
+    image.onerror = () => {
+      setOCRStatus("Could not open this image. Try another file.");
+    };
+
+    image.src = state.imageUrl;
+  }
+
+  function handleImageInput(event) {
+    const file = event.target.files && event.target.files[0];
+
+    loadImageFile(file);
+
+    event.target.value = "";
+  }
+
+  on("imageInput", "change", handleImageInput);
+  on("cameraInput", "change", handleImageInput);
+
+  on("removeImage", "click", () => {
+    state.image = null;
+    state.rotation = 0;
+
+    const image = $("sourceImage");
+
+    if (image) {
+      image.removeAttribute("src");
+      image.style.transform = "";
+    }
+
+    releaseImageUrl();
+
+    show("imagePreview", false);
+    show("emptyPreview", true);
+
+    setText("sourceStatus", "No image selected");
+    setOCRStatus("Upload an image or take a photo.");
+  });
+
+  on("rotateLeft", "click", () => rotateImage(-90));
+  on("rotateRight", "click", () => rotateImage(90));
+
+  function rotateImage(degrees) {
+    if (!state.image) {
+      setOCRStatus("Upload an image first.");
+      return;
+    }
+
+    state.rotation = (state.rotation + degrees + 360) % 360;
+
+    const image = $("sourceImage");
+
+    if (image) {
+      image.style.transform = `rotate(${state.rotation}deg)`;
+    }
+  }
+
+  /* =======================================================
+     IMAGE PREPROCESSING FOR BETTER OCR
+     ======================================================= */
+
+  function prepareImageCanvas() {
+    return new Promise((resolve, reject) => {
+      const image = $("sourceImage");
+
+      if (!image || !image.src || !image.complete) {
+        reject(new Error("Please upload an image first."));
+        return;
+      }
+
+      const scaleElement = $("imageScale");
+      const scale = clamp(
+        scaleElement ? Number(scaleElement.value) || 1 : 1,
+        0.5,
+        3
+      );
+
+      const width = image.naturalWidth;
+      const height = image.naturalHeight;
+
+      if (!width || !height) {
+        reject(new Error("Image dimensions could not be read."));
+        return;
+      }
+
+      const rotated = state.rotation % 180 !== 0;
+
+      const canvas = document.createElement("canvas");
+
+      canvas.width = Math.round(
+        (rotated ? height : width) * scale
+      );
+
+      canvas.height = Math.round(
+        (rotated ? width : height) * scale
+      );
+
+      const context = canvas.getContext("2d", {
+        willReadFrequently: true
+      });
+
+      if (!context) {
+        reject(new Error("Canvas is not supported."));
+        return;
+      }
+
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
+
+      context.save();
+
+      context.translate(
+        canvas.width / 2,
+        canvas.height / 2
+      );
+
+      context.rotate(
+        (state.rotation * Math.PI) / 180
+      );
+
+      context.drawImage(
+        image,
+        (-width * scale) / 2,
+        (-height * scale) / 2,
+        width * scale,
+        height * scale
+      );
+
+      context.restore();
+
+      /*
+        Improve contrast for OCR.
+        This does not guarantee perfect handwriting recognition.
+      */
+
+      try {
+        const imageData = context.getImageData(
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+        const pixels = imageData.data;
+
+        for (let i = 0; i < pixels.length; i += 4) {
+          const r = pixels[i];
+          const g = pixels[i + 1];
+          const b = pixels[i + 2];
+
+          const gray = Math.round(
+            0.299 * r + 0.587 * g + 0.114 * b
+          );
+
+          /*
+            Mild contrast improvement.
+            Avoid aggressive thresholding that may erase thin strokes.
+          */
+
+          const contrasted = clamp(
+            (gray - 128) * 1.2 + 128,
+            0,
+            255
+          );
+
+          pixels[i] = contrasted;
+          pixels[i + 1] = contrasted;
+          pixels[i + 2] = contrasted;
+        }
+
+        context.putImageData(imageData, 0, 0);
+      } catch (error) {
+        console.warn("Image preprocessing skipped:", error);
+      }
+
+      resolve(canvas);
+    });
+  }
+
+  /* =======================================================
+     OCR LANGUAGE SELECTION
+     ======================================================= */
+
+  function getOcrLanguage() {
+    const selector = $("ocrLanguage");
+    return selector ? selector.value : "eng";
+  }
+
+  function validateOcrLanguage(language) {
+    /*
+      Supported languages depend on actual trained models.
+      "orm" is not automatically supported just because it appears
+      in an HTML dropdown.
+    */
+
+    const supported = new Set([
+      "eng",
+      "amh",
+      "ara",
+      "fra",
+      "deu",
+      "spa",
+      "ita",
+      "por",
+      "rus",
+      "hin",
+      "chi_sim"
+    ]);
+
+    if (language === "orm") {
+      throw new Error(
+        "Afaan Oromoo OCR model is not configured. " +
+        "A compatible trained model or external OCR service is needed."
+      );
+    }
+
+    if (!supported.has(language)) {
+      throw new Error(
+        "This OCR language model is not enabled in this version."
+      );
+    }
+
+    return language;
+  }
+
+  function updateOCRProgress(progress) {
+    const percent = Math.round(
+      clamp(progress, 0, 1) * 100
+    );
+
+    const bar = $("ocrProgressBar");
+
+    if (bar) {
+      bar.style.width = `${percent}%`;
+    }
+
+    setText("ocrPercent", `${percent}%`);
+  }
+
+  /* =======================================================
+     IMAGE TO TEXT
+     ======================================================= */
+
+  on("extractButton", "click", async () => {
+    if (state.processing) return;
+
+    if (!state.image) {
+      setOCRStatus("Upload an image or take a photo first.");
+      return;
+    }
+
+    if (!window.Tesseract) {
+      setOCRStatus(
+        "OCR library did not load. Check your internet connection."
+      );
+      return;
+    }
+
+    let language;
+
+    try {
+      language = validateOcrLanguage(getOcrLanguage());
+    } catch (error) {
+      setOCRStatus(error.message);
+      return;
+    }
+
+    state.processing = true;
+
+    const button = $("extractButton");
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Extracting...";
+    }
+
+    show("ocrProgressWrap", true);
+    updateOCRProgress(0);
+
+    setOCRStatus("Preparing image for text recognition...");
+
+    try {
+      const canvas = await prepareImageCanvas();
+
+      setOCRStatus("Reading text. Please wait...");
+
+      const result = await window.Tesseract.recognize(
+        canvas,
+        language,
+        {
+          logger: (message) => {
+            if (message.status) {
+              setOCRStatus(message.status);
+            }
+
+            if (typeof message.progress === "number") {
+              updateOCRProgress(message.progress);
+            }
+          }
+        }
+      );
+
+      const text = result?.data?.text || "";
+      const output = $("extractedText");
+
+      if (output) {
+        output.value = text.trim();
+      }
+
+      if (text.trim()) {
+        setOCRStatus(
+          "Text extracted. Please review and correct recognition mistakes."
+        );
+
+        updateOCRProgress(1);
+      } else {
+        setOCRStatus(
+          "No text detected. Try a clearer, brighter, closer photo."
+        );
+      }
+    } catch (error) {
+      console.error("OCR error:", error);
+
+      setOCRStatus(
+        error.message || "Text recognition failed."
+      );
+    } finally {
+      state.processing = false;
+
+      if (button) {
+        button.disabled = false;
+        button.textContent = "Extract Text";
+      }
+    }
+  });
+
+  /* =======================================================
+     PDF TEXT EXTRACTION
+     ======================================================= */
+
+  async function extractPdfText(file) {
+    if (!window.pdfjsLib) {
+      throw new Error(
+        "PDF library did not load. Check your internet connection."
+      );
+    }
+
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+    const buffer = await file.arrayBuffer();
+
+    const pdf = await window.pdfjsLib.getDocument({
+      data: new Uint8Array(buffer)
+    }).promise;
+
+    let combinedText = "";
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+      setOCRStatus(
+        `Reading PDF page ${pageNumber} of ${pdf.numPages}...`
+      );
+
+      const page = await pdf.getPage(pageNumber);
+      const content = await page.getTextContent();
+
+      const pageText = content.items
+        .map((item) => item.str || "")
+        .join(" ");
+
+      combinedText +=
+        `\n\n--- Page ${pageNumber} ---\n${pageText}`;
+    }
+
+    return {
+      text: combinedText.trim(),
+      pages: pdf.numPages
+    };
+  }
+
+  on("pdfInput", "change", async (event) => {
+    const file = event.target.files && event.target.files[0];
+
+    event.target.value = "";
+
+    if (!file) return;
+
+    if (
+      file.type !== "application/pdf" &&
+      !file.name.toLowerCase().endsWith(".pdf")
+    ) {
+      setOCRStatus("Please select a PDF file.");
+      return;
+    }
+
+    if (state.processing) {
+      setOCRStatus("Wait for the current task to finish.");
+      return;
+    }
+
+    state.processing = true;
+
+    const button = $("extractButton");
+
+    if (button) button.disabled = true;
+
+    show("ocrProgressWrap", true);
+    updateOCRProgress(0);
+
+    try {
+      const result = await extractPdfText(file);
+
+      const output = $("extractedText");
+
+      if (output) {
+        output.value = result.text;
+      }
+
+      if (result.text) {
+        setOCRStatus(
+          `Extracted selectable text from ${result.pages} PDF page(s).`
+        );
+
+        updateOCRProgress(1);
+      } else {
+        setOCRStatus(
+          "No selectable text found. This may be a scanned PDF. " +
+          "Use image OCR on its pages; scanned-PDF OCR is not enabled here."
+        );
+      }
+    } catch (error) {
+      console.error("PDF extraction error:", error);
+
+      setOCRStatus(
+        error.message || "Could not read this PDF."
+      );
+    } finally {
+      state.processing = false;
+
+      if (button) button.disabled = false;
+    }
+  });
+
+  /* =======================================================
+     OCR TEXT ACTIONS
+     ======================================================= */
+
+  on("copyExtracted", "click", async () => {
+    const output = $("extractedText");
+
+    if (!output || !output.value.trim()) {
+      setOCRStatus("There is no text to copy.");
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(output.value);
+      setOCRStatus("Text copied.");
+    } catch {
+      output.focus();
+      output.select();
+
+      try {
+        document.execCommand("copy");
+        setOCRStatus("Text copied.");
+      } catch {
+        setOCRStatus("Select the text and copy it manually.");
+      }
+    }
+  });
+
+  on("downloadTxt", "click", () => {
+    const output = $("extractedText");
+
+    if (!output || !output.value.trim()) {
+      setOCRStatus("There is no text to download.");
+      return;
+    }
+
+    downloadBlob(
+      new Blob([output.value], {
+        type: "text/plain;charset=utf-8"
+      }),
+      "naol-extracted-text.txt"
+    );
+  });
+
+  on("clearExtracted", "click", () => {
+    setValue("extractedText", "");
+    setOCRStatus("Text cleared.");
+    updateOCRProgress(0);
+  });
+
+  on("sendToHandwriting", "click", () => {
+    const source = $("extractedText");
+    const target = $("handwritingText");
+
+    if (!source || !target || !source.value.trim()) {
+      setOCRStatus("Extract text first.");
+      return;
+    }
+
+    target.value = source.value;
+
+    target.dispatchEvent(
+      new Event("input", { bubbles: true })
+    );
+
+    const nav = document.querySelector(
+      '.nav-item[data-view="handwritingView"]'
+    );
+
+    if (nav) nav.click();
+
+    renderHandwriting();
+  });
+
+  /* =======================================================
+     HANDWRITING CAPTION OPTIONS
+     ======================================================= */
+
+  function createCaptionSelector() {
+    if ($("naolCaptionSelect")) return;
+
+    const handwritingView = $("handwritingView");
+
+    if (!handwritingView) return;
+
+    const textArea = $("handwritingText");
+
+    const captions = [
+      {
+        label: "No caption",
+        value: ""
+      },
+      {
+        label: "Personal Notes",
+        value: "Personal Notes"
+      },
+      {
+        label: "Class Notes",
+        value: "Class Notes"
+      },
+      {
+        label: "Daily Journal",
+        value: "Daily Journal"
+      },
+      {
+        label: "Important Information",
+        value: "Important Information"
+      },
+      {
+        label: "Dear Friend,",
+        value: "Dear Friend,"
+      },
+      {
+        label: "Dear Teacher,",
+        value: "Dear Teacher,"
+      },
+      {
+        label: "My Homework",
+        value: "My Homework"
+      },
+      {
+        label: "Meeting Notes",
+        value: "Meeting Notes"
+      },
+      {
+        label: "Study Notes",
+        value: "Study Notes"
+      },
+      {
+        label: "Private Notes",
+        value: "Private Notes"
+      },
+      {
+        label: "My Daily Plan",
+        value: "My Daily Plan"
+      },
+      {
+        label: "To Do List",
+        value: "To Do List"
+      },
+      {
+        label: "Project Report",
+        value: "Project Report"
+      },
+      {
+        label: "Letter",
+        value: "Letter"
+      },
+      {
+        label: "My Story",
+        value: "My Story"
+      },
+      {
+        label: "Written by Hand",
+        value: "Written by Hand"
+      },
+      {
+        label: "Custom Caption",
+        value: "__custom__"
+      }
+    ];
+
+    const wrapper = document.createElement("div");
+
+    wrapper.id = "naolCaptionControls";
+    wrapper.className = "naol-caption-controls";
+
+    wrapper.innerHTML = `
+      <label for="naolCaptionSelect">
+        📝 Handwriting Caption
+      </label>
+
+      <select id="naolCaptionSelect">
+        ${captions.map((caption) => `
+          <option value="${caption.value}">
+            ${caption.label}
+          </option>
+        `).join("")}
+      </select>
+
+      <input
+        id="naolCustomCaption"
+        type="text"
+        placeholder="Write your own caption..."
+        hidden
+      />
+
+      <label for="naolCaptionPosition">
+        Caption position
+      </label>
+
+      <select id="naolCaptionPosition">
+        <option value="top">Top of page</option>
+        <option value="bottom">Bottom of page</option>
+      </select>
+
+      <label for="naolCaptionSize">
+        Caption size
+      </label>
+
+      <input
+        id="naolCaptionSize"
+        type="range"
+        min="14"
+        max="48"
+        value="25"
+      />
+    `;
+
+    const style = document.createElement("style");
+
+    style.textContent = `
+      .naol-caption-controls {
+        display: grid;
+        gap: 9px;
+        margin: 18px 0;
+        padding: 16px;
+        border-radius: 15px;
+        border: 1px solid rgba(139, 92, 246, .35);
+        background: rgba(99, 102, 241, .08);
+      }
+
+      .naol-caption-controls label {
+        margin-top: 4px;
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      .naol-caption-controls select,
+      .naol-caption-controls input[type="text"] {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid rgba(148, 163, 184, .4);
+        background: #111a33;
+        color: #fff;
+        font: inherit;
+      }
+
+      .naol-caption-controls input[type="range"] {
+        width: 100%;
+      }
+
+      .naol-caption-rendered {
+        font-weight: 700;
+        text-align: center;
+        margin-bottom: 22px;
+        overflow-wrap: anywhere;
+      }
+    `;
+
+    document.head.appendChild(style);
+
+    if (textArea && textArea.parentNode) {
+      textArea.parentNode.insertBefore(wrapper, textArea);
+    } else {
+      handwritingView.prepend(wrapper);
+    }
+
+    on("naolCaptionSelect", "change", () => {
+      const select = $("naolCaptionSelect");
+      const custom = $("naolCustomCaption");
+
+      if (select && custom) {
+        custom.hidden = select.value !== "__custom__";
+      }
+
+      renderHandwriting();
+    });
+
+    on("naolCustomCaption", "input", renderHandwriting);
+    on("naolCaptionPosition", "change", renderHandwriting);
+    on("naolCaptionSize", "input", renderHandwriting);
+  }
+
+  function getCaptionText() {
+    const select = $("naolCaptionSelect");
+
+    if (!select) return "";
+
+    if (select.value === "__custom__") {
+      return $("naolCustomCaption")?.value.trim() || "";
+    }
+
+    return select.value;
+  }
+
+  /* =======================================================
+     HANDWRITING RENDERING
+     ======================================================= */
+
+  const fontMap = {
+    "Caveat": "'Caveat', cursive",
+    "Dancing Script": "'Dancing Script', cursive",
+    "Pacifico": "'Pacifico', cursive",
+    "Comic Sans": "'Comic Sans MS', cursive",
+    "Serif": "Georgia, serif",
+    "Cursive": "cursive"
+  };
+
+  function getSelectedFont() {
+    const selector = $("handwritingFont");
+    const selected = selector ? selector.value : "Caveat";
+
+    if (fontMap[selected]) {
+      return fontMap[selected];
+    }
+
+    if (selected.includes("Caveat")) {
+      return "'Caveat', cursive";
+    }
+
+    if (selected.includes("Dancing")) {
+      return "'Dancing Script', cursive";
+    }
+
+    if (selected.includes("Pacifico")) {
+      return "'Pacifico', cursive";
+    }
+
+    return selected || "'Caveat', cursive";
+  }
+
+  function getHandwritingText() {
+    return $("handwritingText")?.value || "";
+  }
+
+  function createHandwritingLines(text) {
+    const container = document.createElement("div");
+
+    container.className = "handwriting-content";
+
+    text.split(/\r?\n/).forEach((line) => {
+      const paragraph = document.createElement("p");
+
+      paragraph.textContent = line || "\u00A0";
+
+      container.appendChild(paragraph);
+    });
+
+    return container;
+  }
+
+  function renderHandwriting() {
+    const preview = $("paperPreview");
+
+    if (!preview) return;
+
+    const text = getHandwritingText();
+
+    const output = $("handwritingOutput");
+    const watermark = $("watermark");
+    const dateElement = $("paperDate");
+
+    const fontSize = $("fontSize")
+      ? Number($("fontSize").value) || 30
+      : 30;
+
+    const lineSpacing = $("lineSpacing")
+      ? Number($("lineSpacing").value) || 1.7
+      : 1.7;
+
+    const inkColor = $("inkColor")
+      ? $("inkColor").value
+      : "#173c80";
+
+    const paperStyle = $("paperStyle")
+      ? $("paperStyle").value
+      : "lined";
+
+    const paperSize = $("paperSize")
+      ? $("paperSize").value
+      : "a4";
+
+    const textAlign = $("textAlign")
+      ? $("textAlign").value
+      : "left";
+
+    const padding = $("pagePadding")
+      ? Number($("pagePadding").value) || 36
+      : 36;
+
+    const font = getSelectedFont();
+    const caption = getCaptionText();
+
+    state.handwritingFont = font;
+    state.currentCaption = caption;
+
+    if (output) {
+      output.replaceChildren();
+
+      const position = $("naolCaptionPosition")?.value || "top";
+
+      const captionSize = $("naolCaptionSize")
+        ? Number($("naolCaptionSize").value) || 25
+        : 25;
+
+      function createCaption() {
+        if (!caption) return null;
+
+        const element = document.createElement("div");
+
+        element.className = "naol-caption-rendered";
+        element.textContent = caption;
+        element.style.fontFamily = font;
+        element.style.fontSize = `${captionSize}px`;
+        element.style.color = inkColor;
+
+        return element;
+      }
+
+      if (position === "top") {
+        const topCaption = createCaption();
+
+        if (topCaption) {
+          output.appendChild(topCaption);
+        }
+      }
+
+      const content = createHandwritingLines(text);
+
+      content.style.fontFamily = font;
+      content.style.fontSize = `${fontSize}px`;
+      content.style.lineHeight = String(lineSpacing);
+      content.style.color = inkColor;
+      content.style.textAlign = textAlign;
+      content.style.overflowWrap = "anywhere";
+      content.style.whiteSpace = "normal";
+
+      output.appendChild(content);
+
+      if (position === "bottom") {
+        const bottomCaption = createCaption();
+
+        if (bottomCaption) {
+          output.appendChild(bottomCaption);
+        }
+      }
+    }
+
+    preview.dataset.paper = paperStyle;
+    preview.dataset.size = paperSize;
+    preview.style.padding = `${padding}px`;
+
+    const paperClasses = [
+      "paper-lined",
+      "paper-blank",
+      "paper-grid",
+      "paper-dotted"
+    ];
+
+    preview.classList.remove(...paperClasses);
+
+    const paperClassMap = {
+      lined: "paper-lined",
+      blank: "paper-blank",
+      grid: "paper-grid",
+      dotted: "paper-dotted"
+    };
+
+    preview.classList.add(
+      paperClassMap[paperStyle] || "paper-lined"
+    );
+
+    const sizeMap = {
+      a4: {
+        width: "794px",
+        minHeight: "1123px"
+      },
+      letter: {
+        width: "816px",
+        minHeight: "1056px"
+      },
+      a5: {
+        width: "559px",
+        minHeight: "794px"
+      }
+    };
+
+    const size = sizeMap[paperSize] || sizeMap.a4;
+
+    preview.style.width = `min(100%, ${size.width})`;
+    preview.style.minHeight = size.minHeight;
+
+    if (watermark) {
+      const checkbox = $("showWatermark");
+
+      watermark.hidden = !(checkbox && checkbox.checked);
+      watermark.textContent = state.watermarkText;
+    }
+
+    if (dateElement) {
+      const checkbox = $("showDate");
+
+      dateElement.hidden = !(checkbox && checkbox.checked);
+
+      dateElement.textContent = new Date().toLocaleDateString();
+    }
+
+    setText("fontSizeValue", `${fontSize}px`);
+    setText("lineSpacingValue", lineSpacing.toFixed(1));
+    setText("inkColorLabel", inkColor.toUpperCase());
+    setText("pageSizeLabel", paperSize.toUpperCase());
+  }
+
+  on("handwritingText", "input", renderHandwriting);
+  on("handwritingFont", "change", renderHandwriting);
+  on("fontSize", "input", renderHandwriting);
+  on("lineSpacing", "input", renderHandwriting);
+  on("inkColor", "input", renderHandwriting);
+  on("paperStyle", "change", renderHandwriting);
+  on("paperSize", "change", renderHandwriting);
+  on("textAlign", "change", renderHandwriting);
+  on("pagePadding", "input", renderHandwriting);
+  on("showWatermark", "change", renderHandwriting);
+  on("showDate", "change", renderHandwriting);
+
+  on("pasteText", "click", async () => {
+    const input = $("handwritingText");
+
+    if (!input) return;
+
+    try {
+      const text = await navigator.clipboard.readText();
+
+      input.value += text;
+
+      input.dispatchEvent(
+        new Event("input", { bubbles: true })
+      );
+
+      renderHandwriting();
+    } catch {
+      setExportStatus(
+        "Clipboard permission denied. Paste text manually.",
+        "error"
+      );
+    }
+  });
+
+  on("clearHandwriting", "click", () => {
+    setValue("handwritingText", "");
+
+    renderHandwriting();
+
+    setExportStatus("Handwriting text cleared.", "success");
+  });
+
+  /* =======================================================
+     EXPORT PNG / JPG / PDF
+     ======================================================= */
+
+  async function renderPaperCanvas() {
+    if (!window.html2canvas) {
+      throw new Error(
+        "Export library did not load. Check your internet."
+      );
+    }
+
+    const preview = $("paperPreview");
+
+    if (!preview) {
+      throw new Error("Paper preview was not found.");
+    }
+
+    renderHandwriting();
+
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready;
+    }
+
+    return window.html2canvas(preview, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      logging: false
+    });
+  }
+
+  async function exportImage(format) {
+    try {
+      setExportStatus("Preparing handwriting page...");
+
+      const canvas = await renderPaperCanvas();
+
+      const mimeType = format === "jpg"
+        ? "image/jpeg"
+        : "image/png";
+
+      canvas.toBlob((blob) => {
+        if (!blob) {
+          setExportStatus("Image export failed.", "error");
+          return;
+        }
+
+        downloadBlob(
+          blob,
+          `naol-handwriting.${format}`
+        );
+
+        setExportStatus(
+          `${format.toUpperCase()} exported successfully.`,
+          "success"
+        );
+      }, mimeType, 0.95);
+    } catch (error) {
+      console.error("Image export error:", error);
+
+      setExportStatus(
+        error.message || "Image export failed.",
+        "error"
+      );
+    }
+  }
+
+  on("exportPng", "click", () => exportImage("png"));
+  on("exportJpg", "click", () => exportImage("jpg"));
+
+  on("exportPdf", "click", async () => {
+    try {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        throw new Error(
+          "PDF export library did not load. Check your internet."
+        );
+      }
+
+      setExportStatus("Creating PDF...");
+
+      const canvas = await renderPaperCanvas();
+
+      const imageData = canvas.toDataURL("image/jpeg", 0.95);
+
+      const pdf = new window.jspdf.jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4"
+      });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      const ratio = Math.min(
+        pageWidth / canvas.width,
+        pageHeight / canvas.height
+      );
+
+      const width = canvas.width * ratio;
+      const height = canvas.height * ratio;
+
+      pdf.addImage(
+        imageData,
+        "JPEG",
+        (pageWidth - width) / 2,
+        0,
+        width,
+        height
+      );
+
+      pdf.save("naol-handwriting.pdf");
+
+      setExportStatus("PDF exported successfully.", "success");
+    } catch (error) {
+      console.error("PDF export error:", error);
+
+      setExportStatus(
+        error.message || "PDF export failed.",
+        "error"
+      );
+    }
+  });
+
+  on("printPage", "click", () => {
+    renderHandwriting();
+    window.print();
+  });
+
+  /* =======================================================
+     INITIALIZE
+     ======================================================= */
+
+  createTranslatorInterface();
+  createCaptionSelector();
+
+  show("imagePreview", false);
+  show("emptyPreview", true);
+  show("ocrProgressWrap", false);
+
+  setText("sourceStatus", "No image selected");
+
+  renderHandwriting();
+
+  console.log("Naol Converter initialized successfully.");
+});
